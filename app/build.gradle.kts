@@ -17,7 +17,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -30,20 +29,22 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
 }
 
 dependencies {
-
     //navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
@@ -52,8 +53,6 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.navigation.compose.android)
-    implementation(libs.androidx.room.common.jvm)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
@@ -65,6 +64,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.1.0-alpha02")
     implementation ("androidx.compose.material:material:1.4.0")
     implementation("androidx.compose.material:material:1.3.1") // Usa la última versión
+    implementation("androidx.compose.material:material-icons-extended")
 
 
 
@@ -94,5 +94,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 }
