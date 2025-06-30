@@ -37,7 +37,6 @@ data class MiniJuego(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ActividadesDiariasScreen(
-    onActivitySelected: (String?) -> Unit = {}
 ) {
     val juegos = listOf(
         MiniJuego(
@@ -69,7 +68,7 @@ fun ActividadesDiariasScreen(
             completado = false
         )
     )
-    NeuroDrawerScaffold {
+    NeuroDrawerScaffold (title = "Actividades Diarias") {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,7 +80,7 @@ fun ActividadesDiariasScreen(
             juegos.forEach { juego ->
                 MinijuegoCard(
                     juego = juego,
-                    onClick = { onActivitySelected(juego.id) }
+                    onClick = {  }
                 )
             }
         }
