@@ -3,6 +3,7 @@ package io.github.reyx38.neuropulse.presentation.Home
 import io.github.reyx38.neuropulse.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,14 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Home() {
+fun Home(
+    goToActividades: () -> Unit
+) {
     NeuroDrawerScaffold {
         Column(
             modifier = Modifier
@@ -32,7 +37,32 @@ fun Home() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             GreetingCard()
-            ActivityCards()
+            ActivityCard(
+                icon = R.drawable.brain,
+                title = "Actividades Diarias",
+                subtitle = "3/4 completadas",
+                progress = 0.8f,
+                progressColor = MaterialTheme.colorScheme.primary,
+                goActivity = {goToActividades()}
+            )
+
+            ActivityCard(
+                icon = R.drawable.img_1,
+                title = "Ejercicio de respiración",
+                subtitle = "Incompleto",
+                progress = 0.5f,
+                progressColor = MaterialTheme.colorScheme.secondary,
+                goActivity = {}
+            )
+
+            ActivityCard(
+                icon = R.drawable.img,
+                title = "Reflexión Escrita",
+                subtitle = "2 notas escritas",
+                progress = null,
+                progressColor = MaterialTheme.colorScheme.tertiary,
+                goActivity = {}
+            )
         }
     }
 }
@@ -78,54 +108,24 @@ private fun GreetingCard() {
 }
 
 @Composable
-private fun ActivityCards() {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        ActivityCard(
-            icon = R.drawable.brain,
-            title = "Actividades Diarias",
-            subtitle = "3/4 completadas",
-            progress = 0.8f,
-            progressColor = MaterialTheme.colorScheme.primary
-        )
-
-        ActivityCard(
-            icon = R.drawable.img_1,
-            title = "Ejercicio de respiración",
-            subtitle = "Incompleto",
-            progress = 0.5f,
-            progressColor = MaterialTheme.colorScheme.secondary
-        )
-
-        ActivityCard(
-            icon = R.drawable.img,
-            title = "Reflexión Escrita",
-            subtitle = "2 notas escritas",
-            progress = null,
-            progressColor = MaterialTheme.colorScheme.tertiary
-        )
-    }
-}
-
-@Composable
 private fun ActivityCard(
     icon: Int,
     title: String,
     subtitle: String,
     progress: Float?,
-    progressColor: Color
+    progressColor: Color,
+    goActivity: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min),
+            .height(IntrinsicSize.Min)
+            .clickable(onClick = { goActivity() }),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        elevation = CardDefaults.cardElevation(2.dp)
+        elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Row(
             modifier = Modifier
