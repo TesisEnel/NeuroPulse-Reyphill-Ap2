@@ -7,4 +7,8 @@ sealed class Screen {
     data object Home: Screen()
     @Serializable
     data object HomeActivities: Screen()
+    @Serializable
+    data object Login: Screen()
+    @Serializable
+    data object Register: Screen()
 }
