@@ -15,7 +15,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NeuroPulseTheme {
+            NeuroPulseTheme(
+                dynamicColor = false
+            ) {
                 val nav = rememberNavController()
                 NeuroPulseNavHost(nav)
             }
