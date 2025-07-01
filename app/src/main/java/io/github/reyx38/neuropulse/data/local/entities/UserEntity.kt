@@ -9,6 +9,7 @@ data class UserEntity(
     val usuarioId : Int?,
     val nombreUsuario: String?,
     val email: String?,
-    val token: String?,
+    val telefono: String?,
+    val token: String? = null,
     val imagenPerfil: ByteArray? = null
 )
