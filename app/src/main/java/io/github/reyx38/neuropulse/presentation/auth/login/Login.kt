@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.login
+package io.github.reyx38.neuropulse.presentation.auth.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +25,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
+import io.github.reyx38.neuropulse.presentation.auth.login.LoginUiEvent
+import io.github.reyx38.neuropulse.presentation.auth.login.LoginUiState
+import io.github.reyx38.neuropulse.presentation.auth.login.LoginViewModel
 
 
 @Composable
