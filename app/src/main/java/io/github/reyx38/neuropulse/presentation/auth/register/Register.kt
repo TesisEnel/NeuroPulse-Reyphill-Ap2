@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth
+package io.github.reyx38.neuropulse.presentation.auth.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*

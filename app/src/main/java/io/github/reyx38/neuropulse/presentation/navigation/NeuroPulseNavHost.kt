@@ -6,8 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import io.github.reyx38.neuropulse.presentation.ActividadesDiarias.ActividadesDiariasScreen
 import io.github.reyx38.neuropulse.presentation.Home.Home
-import io.github.reyx38.neuropulse.presentation.auth.RegisterScreen
-import io.github.reyx38.neuropulse.presentation.login.LoginScreen
+import io.github.reyx38.neuropulse.presentation.auth.register.RegisterScreen
+import io.github.reyx38.neuropulse.presentation.auth.login.LoginScreen
 
 
 @Composable
