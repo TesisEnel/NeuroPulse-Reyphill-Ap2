@@ -15,7 +15,7 @@ class AuthRepository @Inject constructor(
     private val remote: RemoteDataSource,
     private val local: UsuarioRepository
 ) {
-     fun login(nombre: String, password: String) : Flow<Resource<UserEntity>> {
+    fun login(nombre: String, password: String): Flow<Resource<UserEntity>> {
         return flow {
             emit(Resource.Loading())
 
@@ -32,11 +32,11 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun registar(usuarioDto: UsuarioDto): Flow<Resource<Unit>> {
+    fun registar(usuarioDto: UsuarioDto): Flow<Resource<Unit>> {
         return flow {
             try {
                 remote.registerUsuario(usuarioDto)
-                Resource.Success(Unit)
+                emit(Resource.Success(Unit))
             } catch (e: Exception) {
                 emit(Resource.Error(e.message ?: "Error Desconoido"))
             }
