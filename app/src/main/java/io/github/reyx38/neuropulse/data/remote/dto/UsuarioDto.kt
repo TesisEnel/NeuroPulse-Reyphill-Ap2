@@ -2,7 +2,9 @@ package io.github.reyx38.neuropulse.data.remote.dto
 
 data class UsuarioDto (
     val usuarioId : Int?,
-    val nombreUsuario: String?,
+    val nombre: String?,
     val email: String?,
+    val telefono: String?,
+    val password: String?,
     val token: String?,
     val imagenPerfil: String? = null)
