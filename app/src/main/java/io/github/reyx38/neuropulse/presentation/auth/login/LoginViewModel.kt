@@ -62,7 +62,8 @@ class LoginViewModel @Inject constructor(
                     isLoading = false,
                     errorPassword = "",
                     errorNombre = "",
-                    user = null
+                    user = null,
+                    error = null
                 )
             }
         }
@@ -70,40 +71,85 @@ class LoginViewModel @Inject constructor(
 
     private fun login() {
         viewModelScope.launch {
-            authRepository.login(_uiState.value.nombre, _uiState.value.password).collect{ result ->
-                when(result){
-                    is Resource.Loading -> {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = true
-                            )
-                        }
-                    }
+            if (validar()) {
+                authRepository.login(_uiState.value.nombre, _uiState.value.password)
+                    .collect { result ->
+                        when (result) {
+                            is Resource.Loading -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = true
+                                    )
+                                }
+                            }
 
-                    is Resource.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                error = result.message ?: "Error al cargar el usuario",
-                                isLoading = false
-                            )
+                            is Resource.Error -> {
+                                _uiState.update {
+                                    it.copy(
+                                        error = result.message ?: "Error al cargar el usuario",
+                                        isLoading = false
+                                    )
+                                }
+                            }
+
+                            is Resource.Success -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        user = result.data,
+                                        error = null,
+                                        errorNombre = null,
+                                        errorPassword = null
+                                    )
+                                }
+                            }
                         }
                     }
-                    is Resource.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                user = result.data,
-                                error = null,
-                                errorNombre = null,
-                                errorPassword = null
-                            )
-                        }
-                    }
-                }
+            } else {
+                return@launch
             }
         }
     }
 
+    private fun validar(): Boolean {
+        if (_uiState.value.nombre.isNullOrEmpty() ){
+            _uiState.update {
+                it.copy(
+                    errorNombre = "El nombre esta vacio"
+                )
+            }
+            return false
+        }
+
+        if (_uiState.value.nombre.length >= 15) {
+            _uiState.update {
+                it.copy(
+                    errorNombre = "El nombre es muy largo"
+                )
+            }
+            return false
+        }
+
+        if (_uiState.value.password.isNullOrEmpty()) {
+            _uiState.update {
+                it.copy(
+                    errorPassword = "La contraseña esta vacia"
+                )
+            }
+            return false
+        }
+
+        if (_uiState.value.password.length >= 12 || _uiState.value.password.length <= 5) {
+            _uiState.update {
+                it.copy(
+                    errorPassword = "la contraseña debe estar entre 5 y 12 letras"
+                )
+            }
+            return false
+        }
+
+        return true
+    }
 
 
 }
