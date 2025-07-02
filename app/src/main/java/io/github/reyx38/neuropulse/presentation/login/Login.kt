@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth
+package io.github.reyx38.neuropulse.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,16 +22,68 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
+
 
 @Composable
 fun LoginScreen(
-    goToHome : () -> Unit,
+    viewModel: LoginViewModel = hiltViewModel(),
+    goToHome: () -> Unit,
     goToRegister: () -> Unit
 
 ) {
-    var email by remember { mutableStateOf("") }
-    var pass by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(uiState.user) {
+        if (uiState.user != null) {
+            goToHome()
+        }
+    }
+    if (uiState.isLoading || uiState.error != null) {
+        AlertDialog(
+            onDismissRequest = { /* bloquea cierre mientras carga */ },
+            confirmButton = {
+                if (uiState.error != null) {
+                    TextButton(onClick = { viewModel.onEvent(LoginUiEvent.New) }) {
+                        Text("Cerrar")
+                    }
+                }
+            },
+            title = { Text("Autenticando") },
+            text = {
+                if (uiState.isLoading) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator()
+                        Spacer(Modifier.height(16.dp))
+                        Text("Por favor espera…")
+                    }
+                } else {
+                    Text(uiState.error ?: "")
+                }
+            }
+        )
+    }
+
+    LoginBodyScreen(
+        uiState,
+        viewModel::onEvent,
+        goToHome = goToHome,
+        goToRegister = goToRegister
+
+    )
+
+}
+
+@Composable
+fun LoginBodyScreen(
+    uiState: LoginUiState,
+    onEvent: (LoginUiEvent) -> Unit,
+    goToHome: () -> Unit,
+    goToRegister: () -> Unit
+
+) {
+
     var showPass by remember { mutableStateOf(false) }
 
     val gradient = Brush.horizontalGradient(
@@ -66,21 +118,22 @@ fun LoginScreen(
         )
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = uiState.nombre,
+            onValueChange = { onEvent(LoginUiEvent.NombreChange(it)) },
             label = { Text("Nombre de usuario") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
-            value = pass,
-            onValueChange = { pass = it },
+            value = uiState.password,
+            onValueChange = { onEvent(LoginUiEvent.PasswordChange(it)) },
             label = { Text("Contraseña") },
             singleLine = true,
             visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                val icon = if (showPass) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                val icon =
+                    if (showPass) Icons.Default.VisibilityOff else Icons.Default.Visibility
                 IconButton(onClick = { showPass = !showPass }) {
                     Icon(icon, contentDescription = null)
                 }
@@ -90,7 +143,7 @@ fun LoginScreen(
         )
 
         Button(
-            onClick = { goToHome() },
+            onClick = { onEvent(LoginUiEvent.Login) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -113,7 +166,7 @@ fun LoginScreen(
             }
         }
 
-        TextButton(onClick = {goToRegister()}) {
+        TextButton(onClick = { goToRegister() }) {
             Text("Create An Account")
         }
         TextButton(onClick = {}) {
