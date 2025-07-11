@@ -9,7 +9,7 @@ import io.github.reyx38.neuropulse.data.local.dao.UsuarioDao
     entities = [
         UserEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class NeuroPulseDb : RoomDatabase() {
