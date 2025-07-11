@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.Usuarios
+package io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios
 
 import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 
@@ -10,7 +10,8 @@ data class UsuarioUiState (
     val errorEmail: String? = null,
     val telefono:  String? = null,
     val errorTelefono: String? = null,
-    val password: String? = null,
-    val errorPassword: String? = null,
-    val Usuarios: List<UserEntity> = emptyList()
+    val isUpdating: Boolean = false,
+    val updateMessage: String? = null,
+    val isError: Boolean = false,
+    val usuario: UserEntity? = null
 )
