@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.Home
+package io.github.reyx38.neuropulse.presentation.home
 
 import io.github.reyx38.neuropulse.R
 import androidx.compose.foundation.Image
@@ -15,19 +15,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
+    navHostController: NavHostController,
+    viewModel: HomeViewModel = hiltViewModel(),
     goToActividades: () -> Unit
 ) {
-    NeuroDrawerScaffold {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    NeuroDrawerScaffold(navHostController = navHostController,) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -36,10 +41,10 @@ fun Home(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            GreetingCard()
+            GreetingCard( nombre = uiState.usuario?.nombreUsuario )
             ActivityCard(
                 icon = R.drawable.brain,
-                title = "Actividades Diarias",
+                title = "Tus Actividades Diarias",
                 subtitle = "3/4 completadas",
                 progress = 0.8f,
                 progressColor = MaterialTheme.colorScheme.primary,
@@ -68,7 +73,9 @@ fun Home(
 }
 
 @Composable
-private fun GreetingCard() {
+private fun GreetingCard(
+    nombre: String?
+) {
     val frase = remember { getFrase() }
 
     Column(
@@ -85,7 +92,7 @@ private fun GreetingCard() {
         )
 
         Text(
-            text = "¡Buenas Reyphill!",
+            text = "¡Buenas $nombre!",
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.SemiBold
             ),
