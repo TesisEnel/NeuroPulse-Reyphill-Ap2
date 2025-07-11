@@ -9,4 +9,5 @@ class RemoteDataSource @Inject constructor(
 ) {
     suspend fun registerUsuario(usuarioDto: UsuarioDto) = neuroPulseApi.registrarUsuario(usuarioDto)
     suspend fun loginUsuario(peticionLogin: PeticionLogin) = neuroPulseApi.loginUsuario(peticionLogin)
+    suspend fun updateUsuario(id: Int, usuarioDto: UsuarioDto) = neuroPulseApi.updateUsuario(id, usuarioDto)
 }
