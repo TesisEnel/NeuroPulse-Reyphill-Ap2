@@ -10,6 +10,6 @@ class UsuarioRepository @Inject constructor(
     private val usuarioDao: UsuarioDao
 ) {
     suspend fun save(usuario: UserEntity) = usuarioDao.save(usuario)
-    suspend fun find (id: Int): UserEntity? = usuarioDao.find(id)
-    suspend fun delete(usuario: UserEntity) = usuarioDao.delete(usuario)
+    suspend fun getUsuario (): UserEntity? = usuarioDao.getUsuario()
+    suspend fun deleteAll() = usuarioDao.deleteAll()
 }
