@@ -5,10 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import io.github.reyx38.neuropulse.presentation.ActividadesDiarias.ActividadesDiariasScreen
-import io.github.reyx38.neuropulse.presentation.Home.Home
-import io.github.reyx38.neuropulse.presentation.auth.login.LoginScreen
-import io.github.reyx38.neuropulse.presentation.auth.register.RegistarScreen
-import io.github.reyx38.neuropulse.presentation.profile.ProfileScreen
+import io.github.reyx38.neuropulse.presentation.home.Home
+import io.github.reyx38.neuropulse.presentation.usuarios.auth.login.LoginScreen
+import io.github.reyx38.neuropulse.presentation.usuarios.auth.register.RegistarScreen
+import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.ProfileScreen
 
 
 @Composable
@@ -19,8 +19,9 @@ fun NeuroPulseNavHost(
         navController = navHostController,
         startDestination = Screen.Login
     ) {
-        composable<Screen.Home>() {
+        composable<Screen.Home> {
             Home(
+                navHostController = navHostController,
                 goToActividades = {
                     navHostController.navigate(Screen.HomeActivities)
                 }
@@ -50,6 +51,9 @@ fun NeuroPulseNavHost(
             RegistarScreen(
                 goToHome = {
                     navHostController.navigate(Screen.Home)
+                },
+                goToLogin = {
+                    navHostController.navigate(Screen.Login)
                 }
 
             )
