@@ -12,15 +12,18 @@ import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.reyx38.neuropulse.ui.theme.NeuroPulseTheme
+import androidx.navigation.NavHostController
+import io.github.reyx38.neuropulse.presentation.navigation.Screen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NeuroDrawerScaffold(
     title: String = "NeuroPulse",
+    navHostController: NavHostController,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -28,7 +31,6 @@ fun NeuroDrawerScaffold(
     var selectedItem by remember { mutableStateOf("home") }
 
     val drawerItems = listOf(
-        DrawerItem("account", "Gestión de cuenta", Icons.Default.AccountCircle),
         DrawerItem("progress", "Progresión Semanal", Icons.Default.ShowChart),
         DrawerItem("reflections", "Reflexiones", Icons.Default.EditNote),
         DrawerItem("activities", "Actividades Diarias", Icons.Default.Games)
@@ -71,7 +73,10 @@ fun NeuroDrawerScaffold(
                             selected = selectedItem == item.id,
                             onClick = {
                                 selectedItem = item.id
-                                scope.launch { drawerState.close() }
+                                scope.launch {
+                                    drawerState.close()
+                                    item.screen?.let { navHostController.navigate(it) }
+                                }
                             },
                             modifier = Modifier
                                 .padding(horizontal = 12.dp)
@@ -109,7 +114,7 @@ fun NeuroDrawerScaffold(
                             }
                         },
                         actions = {
-                            IconButton(onClick = { /* Acción futura */ }) {
+                            IconButton(onClick = {navHostController.navigate(Screen.UsuarioOptiones) }) {
                                 Icon(
                                     Icons.Default.AccountCircle,
                                     contentDescription = "Gestión usuarios",
@@ -141,7 +146,8 @@ fun NeuroDrawerScaffold(
 data class DrawerItem(
     val id: String,
     val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val icon: ImageVector,
+    val screen: Screen? = null
 )
 
 fun getFrase(): String {
