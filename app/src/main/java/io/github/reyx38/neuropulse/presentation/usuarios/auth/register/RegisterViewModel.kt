@@ -1,5 +1,6 @@
-package io.github.reyx38.neuropulse.presentation.auth.register
+package io.github.reyx38.neuropulse.presentation.usuarios.auth.register
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -155,7 +156,7 @@ class RegisterViewModel @Inject constructor(
                 isValid = false
                 "El email es requerido"
             }
-            !android.util.Patterns.EMAIL_ADDRESS.matcher(currentState.email).matches() -> {
+            !Patterns.EMAIL_ADDRESS.matcher(currentState.email).matches() -> {
                 isValid = false
                 "Email no válido"
             }
@@ -201,7 +202,6 @@ class RegisterViewModel @Inject constructor(
             else -> ""
         }
 
-        // Actualizar errores en el state
         _uiState.update {
             it.copy(
                 errorNombre = nombreError,

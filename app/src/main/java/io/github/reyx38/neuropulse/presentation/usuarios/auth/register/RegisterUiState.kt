@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth.register
+package io.github.reyx38.neuropulse.presentation.usuarios.auth.register
 
 data class RegisterUiState (
     val usuarioId: Int? = null,

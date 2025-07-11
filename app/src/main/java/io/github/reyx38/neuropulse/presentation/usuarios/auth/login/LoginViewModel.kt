@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth.login
+package io.github.reyx38.neuropulse.presentation.usuarios.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,17 +18,14 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 
-    //Validar sesion existente
-    init {
-
-    }
+    init { getUsuario() }
 
     fun onEvent(event: LoginUiEvent) {
         when (event) {
             LoginUiEvent.Login -> login()
             LoginUiEvent.New -> new()
             is LoginUiEvent.NombreChange -> onNombreChange(event.nombre)
-            is LoginUiEvent.PasswordChange -> onpasswordChange(event.password)
+            is LoginUiEvent.PasswordChange -> onPasswordChange(event.password)
         }
     }
 
@@ -36,18 +33,20 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    nombre = nombre
+                    nombre = nombre,
+                    errorNombre = ""
                 )
             }
         }
 
     }
 
-    private fun onpasswordChange(password: String) {
+    private fun onPasswordChange(password: String) {
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    password = password
+                    password = password,
+                    errorPassword = ""
                 )
             }
         }
@@ -111,8 +110,30 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    private fun getUsuario(){
+        viewModelScope.launch {
+            val user =  authRepository.getUsuario()
+            _uiState.update {
+                it.copy(
+                    user = user,
+                )
+            }
+        }
+    }
+
+    private fun cerraSesion(){
+        viewModelScope.launch {
+            authRepository.cerrarSesion()
+            _uiState.update {
+                it.copy(
+                    user = null
+                )
+            }
+        }
+    }
+
     private fun validar(): Boolean {
-        if (_uiState.value.nombre.isNullOrEmpty() ){
+        if (_uiState.value.nombre.isEmpty() ){
             _uiState.update {
                 it.copy(
                     errorNombre = "El nombre esta vacio"
@@ -121,7 +142,7 @@ class LoginViewModel @Inject constructor(
             return false
         }
 
-        if (_uiState.value.nombre.length >= 15) {
+        if (_uiState.value.nombre.length > 30) {
             _uiState.update {
                 it.copy(
                     errorNombre = "El nombre es muy largo"
@@ -130,7 +151,7 @@ class LoginViewModel @Inject constructor(
             return false
         }
 
-        if (_uiState.value.password.isNullOrEmpty()) {
+        if (_uiState.value.password.isEmpty()) {
             _uiState.update {
                 it.copy(
                     errorPassword = "La contraseña esta vacia"
@@ -139,7 +160,7 @@ class LoginViewModel @Inject constructor(
             return false
         }
 
-        if (_uiState.value.password.length >= 12 || _uiState.value.password.length <= 5) {
+        if (_uiState.value.password.length > 12 || _uiState.value.password.length < 5) {
             _uiState.update {
                 it.copy(
                     errorPassword = "la contraseña debe estar entre 5 y 12 letras"

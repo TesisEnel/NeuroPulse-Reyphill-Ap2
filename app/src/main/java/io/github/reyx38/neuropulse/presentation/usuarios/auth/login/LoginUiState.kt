@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth.login
+package io.github.reyx38.neuropulse.presentation.usuarios.auth.login
 
 import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 

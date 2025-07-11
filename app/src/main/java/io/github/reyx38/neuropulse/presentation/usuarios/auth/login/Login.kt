@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth.login
+package io.github.reyx38.neuropulse.presentation.usuarios.auth.login
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -40,10 +40,9 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState.user) {
-        if (uiState.user != null) {
-            goToHome()
-        }
+
+    LaunchedEffect(uiState.user != null) {
+        if (uiState.user != null) goToHome()
     }
 
     LoginBodyScreen(
@@ -95,13 +94,13 @@ fun LoginBodyScreen(
             )
         )
 
-        // Contenedor para inputs y barra de progreso
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Campo de nombre con validación
+
             Column {
+
                 OutlinedTextField(
                     value = uiState.nombre,
                     onValueChange = { onEvent(LoginUiEvent.NombreChange(it)) },

@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth.login
+package io.github.reyx38.neuropulse.presentation.usuarios.auth.login
 
 sealed interface LoginUiEvent {
     data class NombreChange(val nombre: String): LoginUiEvent

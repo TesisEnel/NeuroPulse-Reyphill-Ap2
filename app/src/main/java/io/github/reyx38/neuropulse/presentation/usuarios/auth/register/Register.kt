@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.auth.register
+package io.github.reyx38.neuropulse.presentation.usuarios.auth.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -22,17 +22,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun RegistarScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
-    goToHome: () -> Unit
+    goToHome: () -> Unit,
+    goToLogin: () -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
-            kotlinx.coroutines.delay(1500)
+            delay(1500)
             goToHome()
         }
     }
@@ -40,7 +42,7 @@ fun RegistarScreen(
     RegisterBodyScreen(
         uiState = uiState,
         onEvent = viewModel::onEvent,
-        onSignInClick = goToHome
+        onSignInClick = goToLogin
     )
 }
 
@@ -49,7 +51,6 @@ fun RegisterBodyScreen(
     uiState: RegisterUiState,
     onEvent: (RegisterUiEvent) -> Unit,
     onSignInClick: () -> Unit = {},
-    onResetPasswordClick: () -> Unit = {}
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
@@ -109,7 +110,6 @@ fun RegisterBodyScreen(
             }
         }
 
-        // Mensaje de éxito
         if (uiState.isSuccess) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -140,7 +140,6 @@ fun RegisterBodyScreen(
             }
         }
 
-        // Nombre
         OutlinedTextField(
             value = uiState.nombre,
             onValueChange = { onEvent(RegisterUiEvent.NombreChange(it)) },
@@ -154,7 +153,6 @@ fun RegisterBodyScreen(
             } else null
         )
 
-        // Teléfono
         OutlinedTextField(
             value = uiState.telefono,
             onValueChange = { onEvent(RegisterUiEvent.TelefonoChange(it)) },
@@ -169,7 +167,6 @@ fun RegisterBodyScreen(
             } else null
         )
 
-        // Email
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { onEvent(RegisterUiEvent.EmailChange(it)) },
@@ -184,7 +181,6 @@ fun RegisterBodyScreen(
             } else null
         )
 
-        // Password
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { onEvent(RegisterUiEvent.PasswordChange(it)) },
@@ -210,7 +206,6 @@ fun RegisterBodyScreen(
             } else null
         )
 
-        // Confirm Password
         OutlinedTextField(
             value = uiState.passwordConfirm,
             onValueChange = { onEvent(RegisterUiEvent.PasswordConfirmChange(it)) },
@@ -236,7 +231,6 @@ fun RegisterBodyScreen(
             } else null
         )
 
-        // Estado de carga - SOLO UNA barra de progreso
         if (uiState.isLoading) {
             LinearProgressIndicator(
                 modifier = Modifier
@@ -246,7 +240,6 @@ fun RegisterBodyScreen(
             )
         }
 
-        // Botón de registro
         Button(
             onClick = { onEvent(RegisterUiEvent.Save) },
             modifier = Modifier
@@ -261,7 +254,6 @@ fun RegisterBodyScreen(
             )
         }
 
-        // Navegación secundaria
         TextButton(
             onClick = onSignInClick,
             enabled = !uiState.isLoading
@@ -269,13 +261,5 @@ fun RegisterBodyScreen(
             Text("Iniciar sesión")
         }
 
-        TextButton(
-            onClick = onResetPasswordClick,
-            enabled = !uiState.isLoading
-        ) {
-            Text("Reiniciar Contraseña")
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
