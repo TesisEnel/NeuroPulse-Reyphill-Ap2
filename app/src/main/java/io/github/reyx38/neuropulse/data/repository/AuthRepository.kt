@@ -42,4 +42,43 @@ class AuthRepository @Inject constructor(
             }
         }
     }
+
+    fun updateUsuario(dto: UsuarioDto): Flow<Resource<UserEntity>> = flow {
+        emit(Resource.Loading())
+
+        try {
+            val response = remote.updateUsuario(dto.usuarioId!!, dto)
+
+            if (response.isSuccessful) {
+                val updatedEntity = UserEntity(
+                    usuarioId = dto.usuarioId,
+                    nombreUsuario = dto.nombre,
+                    email = dto.email,
+                    token = null,
+                    telefono = dto.telefono,
+                    imagenPerfil = dto.imagenUrl?.toByteArray()
+                )
+                local.save(updatedEntity)
+
+                emit(Resource.Success(updatedEntity))
+            } else {
+                emit(Resource.Error("Error del servidor: ${response.message()}"))
+            }
+
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "Error: en actualizar usuario"))
+        }
+    }
+
+
+    suspend fun getUsuario(): UserEntity? = try {
+        local.getUsuario()
+    } catch (e: Exception) {
+        null
+    }
+
+    suspend fun cerrarSesion() {
+        local.deleteAll()
+    }
+
 }
