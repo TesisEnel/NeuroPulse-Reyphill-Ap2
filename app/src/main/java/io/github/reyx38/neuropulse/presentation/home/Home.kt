@@ -22,16 +22,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
+import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
     navHostController: NavHostController,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: UsuarioViewModel = hiltViewModel(),
     goToActividades: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    LaunchedEffect(Unit) {
+        viewModel.getUsuario()
+    }
     NeuroDrawerScaffold(navHostController = navHostController,) {
         Column(
             modifier = Modifier
