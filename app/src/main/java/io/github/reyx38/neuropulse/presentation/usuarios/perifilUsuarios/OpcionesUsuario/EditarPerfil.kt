@@ -1,7 +1,6 @@
 package io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,7 +18,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioEvent
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioUiState
