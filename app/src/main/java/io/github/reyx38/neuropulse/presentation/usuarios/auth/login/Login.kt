@@ -36,7 +36,6 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     goToHome: () -> Unit,
     goToRegister: () -> Unit,
-    goToProfile: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -49,7 +48,6 @@ fun LoginScreen(
         uiState,
         viewModel::onEvent,
         goToRegister = goToRegister,
-        goToProfile
     )
 }
 
@@ -58,7 +56,6 @@ fun LoginBodyScreen(
     uiState: LoginUiState,
     onEvent: (LoginUiEvent) -> Unit,
     goToRegister: () -> Unit,
-    goToProfile: () -> Unit
 
 ) {
     var showPass by remember { mutableStateOf(false) }
@@ -308,8 +305,6 @@ fun LoginBodyScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
         Button(
             onClick = { onEvent(LoginUiEvent.Login) },
             modifier = Modifier
@@ -350,13 +345,6 @@ fun LoginBodyScreen(
             enabled = !uiState.isLoading
         ) {
             Text("Create An Account")
-        }
-
-        TextButton(
-            onClick = {goToProfile()},
-            enabled = !uiState.isLoading
-        ) {
-            Text("Reset Password")
         }
     }
 }
