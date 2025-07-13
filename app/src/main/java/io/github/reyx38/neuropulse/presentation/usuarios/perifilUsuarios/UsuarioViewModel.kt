@@ -24,7 +24,32 @@ class UsuarioViewModel @Inject constructor(
         getUsuario()
     }
 
-    private fun getUsuario() {
+
+    fun onEvent(event: UsuarioEvent) {
+        when (event) {
+            UsuarioEvent.Delete -> cerraSesion()
+            UsuarioEvent.New -> new()
+            UsuarioEvent.Save -> update()
+            UsuarioEvent.DismissMessage -> dismissMessage()
+            is UsuarioEvent.EmailChange -> onEmailChange(event.email)
+            is UsuarioEvent.NombreChange -> onNombreChange(event.nombre)
+            is UsuarioEvent.TelefonoChange -> onTelefonoChange(event.telefono)
+            is UsuarioEvent.UsuarioIdChange -> onUsuarioIdChange(event.usuarioId)
+        }
+    }
+
+    private fun cerraSesion() {
+        viewModelScope.launch {
+            authRepository.cerrarSesion()
+            _uiState.update {
+                it.copy(
+                    usuario = null
+                )
+            }
+        }
+    }
+
+    fun getUsuario() {
         viewModelScope.launch {
             val user = authRepository.getUsuario()
             _uiState.update {
@@ -36,19 +61,6 @@ class UsuarioViewModel @Inject constructor(
                     usuario = user,
                 )
             }
-        }
-    }
-
-    fun onEvent(event: UsuarioEvent) {
-        when (event) {
-            UsuarioEvent.Delete -> {}
-            UsuarioEvent.New -> new()
-            UsuarioEvent.Save -> update()
-            UsuarioEvent.DismissMessage -> dismissMessage()
-            is UsuarioEvent.EmailChange -> onEmailChange(event.email)
-            is UsuarioEvent.NombreChange -> onNombreChange(event.nombre)
-            is UsuarioEvent.TelefonoChange -> onTelefonoChange(event.telefono)
-            is UsuarioEvent.UsuarioIdChange -> onUsuarioIdChange(event.usuarioId)
         }
     }
 
@@ -65,8 +77,6 @@ class UsuarioViewModel @Inject constructor(
     private fun onNombreChange(nombre: String) {
         _uiState.update { it.copy(nombre = nombre) }
     }
-
-
 
     private fun onTelefonoChange(telefono: String) {
         _uiState.update { it.copy(telefono = telefono) }
@@ -166,10 +176,12 @@ class UsuarioViewModel @Inject constructor(
                 isValid = false
                 "El nombre es requerido"
             }
+
             nombre.length < 2 -> {
                 isValid = false
                 "El nombre debe tener al menos 2 caracteres"
             }
+
             else -> ""
         }
 
@@ -178,10 +190,12 @@ class UsuarioViewModel @Inject constructor(
                 isValid = false
                 "El email es requerido"
             }
+
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
                 isValid = false
                 "Email no válido"
             }
+
             else -> ""
         }
 
@@ -190,10 +204,12 @@ class UsuarioViewModel @Inject constructor(
                 isValid = false
                 "El teléfono es requerido"
             }
+
             telefono.length < 10 -> {
                 isValid = false
                 "El teléfono debe tener al menos 10 dígitos"
             }
+
             else -> ""
         }
 
