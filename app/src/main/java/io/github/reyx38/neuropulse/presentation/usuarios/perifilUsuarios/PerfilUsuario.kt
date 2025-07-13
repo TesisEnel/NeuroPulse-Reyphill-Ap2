@@ -6,9 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,19 +20,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
+import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.LogoutScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ProfileDetailScreen
 
 
 @Composable
 fun ProfileScreen(
     viewModel: UsuarioViewModel = hiltViewModel(),
-    goToBack: () -> Unit = {}
+    goToMenu: () -> Unit = {},
+    goToLogout: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val vistaActual = remember { mutableStateOf("main") }
@@ -40,8 +42,10 @@ fun ProfileScreen(
         "main" -> {
             MainProfileScreen(
                 uiSate = uiState,
-                onNavigateBack = goToBack,
-                onSectionSelect = { vistaActual.value = it }
+                onNavigateMenu = goToMenu,
+                onNavigateLogin = goToLogout,
+                onSectionSelect = { vistaActual.value = it },
+                onEvent = viewModel::onEvent
             )
         }
 
@@ -51,46 +55,22 @@ fun ProfileScreen(
                 onEvent = viewModel::onEvent,
                 onBack = { vistaActual.value = "main" })
         }
+
         "favorite" -> FavoriteScreen(onBack = { vistaActual.value = "main" })
         "settings" -> SettingsScreen(onBack = { vistaActual.value = "main" })
-        "logout" -> LogoutConfirmationScreen(onBack = { vistaActual.value = "main" })
-    }
-}
-
-@Composable
-fun LogoutConfirmationScreen(onBack: () -> Unit) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFFFEBEE)
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                "¿Estás seguro que deseas cerrar sesión?",
-                style = MaterialTheme.typography.titleLarge
+        "logout" -> {
+            MainProfileScreen(
+                uiSate = uiState,
+                onNavigateMenu = goToMenu,
+                onSectionSelect = { vistaActual.value = it },
+                isView = true,
+                onNavigateLogin = goToLogout,
+                onEvent = viewModel::onEvent
             )
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Button(
-                    onClick = onBack,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Cancelar")
-                }
-                Button(onClick = {
-                    onBack()
-                }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) {
-                    Text("Salir")
-                }
-            }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,15 +78,17 @@ fun SettingsScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(
-                    text = "Configuraciones",
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )},
+                title = {
+                    Text(
+                        text = "Configuraciones",
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
@@ -129,12 +111,14 @@ fun FavoriteScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {Text(
-                    text = "Frases favoritas",
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                ) },
+                title = {
+                    Text(
+                        text = "Frases favoritas",
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
@@ -161,9 +145,14 @@ fun FavoriteScreen(onBack: () -> Unit) {
 @Composable
 fun MainProfileScreen(
     uiSate: UsuarioUiState,
-    onNavigateBack: () -> Unit = {},
-    onSectionSelect: (String) -> Unit
+    onEvent: (UsuarioEvent) -> Unit,
+    onNavigateMenu: () -> Unit = {},
+    onNavigateLogin: () -> Unit = {},
+    onSectionSelect: (String) -> Unit,
+    isView: Boolean = false,
 ) {
+    var showLogoutDialog by remember { mutableStateOf(isView) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -176,7 +165,7 @@ fun MainProfileScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = onNavigateMenu) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back"
@@ -231,12 +220,19 @@ fun MainProfileScreen(
             ProfileMenuItem(
                 icon = Icons.Default.ExitToApp,
                 title = "Logout",
-                backgroundColor = Color(0xFFF44336).copy(alpha = 0.1f),
-                iconColor = Color(0xFFF44336),
-                onClick = { onSectionSelect("logout") }
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                onClick = { showLogoutDialog = true }
             )
 
-
+            LogoutScreen(
+                isVisible = showLogoutDialog,
+                onDismiss = { showLogoutDialog = false },
+                onConfirmLogout = {
+                    showLogoutDialog = false
+                    onEvent(UsuarioEvent.Delete)
+                    onNavigateLogin()
+                })
         }
     }
 }
