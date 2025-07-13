@@ -33,25 +33,28 @@ fun NeuroPulseNavHost(
         }
         composable<Screen.Login> {
             LoginScreen(
-                goToHome = {
-                    navHostController.navigate(Screen.Home)
 
+                goToHome = {
+                    navHostController.navigate(Screen.Home) {
+                        popUpTo(Screen.Login) { inclusive = true }
+                    }
                 },
+
                 goToRegister = {
                     navHostController.navigate(Screen.Register)
-                },
-
-                goToProfile = {
-                    navHostController.navigate(Screen.UsuarioOptiones)
                 }
 
             )
         }
         composable<Screen.Register> {
             RegistarScreen(
+
                 goToHome = {
-                    navHostController.navigate(Screen.Home)
+                    navHostController.navigate(Screen.Home) {
+                        popUpTo(Screen.Login) { inclusive = true }
+                    }
                 },
+
                 goToLogin = {
                     navHostController.navigate(Screen.Login)
                 }
@@ -59,12 +62,19 @@ fun NeuroPulseNavHost(
             )
         }
         composable<Screen.UsuarioOptiones> {
-            ProfileScreen (
+            ProfileScreen(
+                goToMenu =   {
+                    navHostController.navigate(Screen.Home)
+                },
+                goToLogout = {
+                    navHostController.navigate(Screen.Login) {
+                        popUpTo(Screen.UsuarioOptiones) { inclusive = true }
+                    }
+                }
 
             )
         }
 
     }
-
 }
 
