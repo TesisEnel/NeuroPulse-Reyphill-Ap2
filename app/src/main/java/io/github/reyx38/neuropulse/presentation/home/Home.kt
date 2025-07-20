@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioViewModel
@@ -29,7 +30,8 @@ import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.Usuario
 fun Home(
     navHostController: NavHostController,
     viewModel: UsuarioViewModel = hiltViewModel(),
-    goToActividades: () -> Unit
+    goToActividades: () -> Unit,
+    goToReflexiones: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -69,7 +71,7 @@ fun Home(
                 subtitle = "2 notas escritas",
                 progress = null,
                 progressColor = MaterialTheme.colorScheme.tertiary,
-                goActivity = {}
+                goActivity = {goToReflexiones()}
             )
         }
     }
