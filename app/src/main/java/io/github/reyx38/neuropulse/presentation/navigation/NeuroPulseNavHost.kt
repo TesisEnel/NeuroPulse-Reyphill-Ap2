@@ -4,8 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import io.github.reyx38.neuropulse.presentation.ActividadesDiarias.ActividadesDiariasScreen
+import io.github.reyx38.neuropulse.presentation.experiencia.ReflexionScreen
+import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionBodyScreen
 import io.github.reyx38.neuropulse.presentation.home.Home
+import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionListScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.auth.login.LoginScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.auth.register.RegistarScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.ProfileScreen
@@ -24,6 +28,9 @@ fun NeuroPulseNavHost(
                 navHostController = navHostController,
                 goToActividades = {
                     navHostController.navigate(Screen.HomeActivities)
+                },
+                goToReflexiones = {
+                    navHostController.navigate(Screen.ReflexionListScreen)
                 }
             )
 
@@ -63,7 +70,7 @@ fun NeuroPulseNavHost(
         }
         composable<Screen.UsuarioOptiones> {
             ProfileScreen(
-                goToMenu =   {
+                goToMenu = {
                     navHostController.navigate(Screen.Home)
                 },
                 goToLogout = {
@@ -72,6 +79,25 @@ fun NeuroPulseNavHost(
                     }
                 }
 
+            )
+        }
+        composable<Screen.ReflexionScreen> {
+            val reflexionId = it.toRoute<Screen.ReflexionScreen>().reflexionId
+            ReflexionScreen(
+                goToBack = {
+                    navHostController.navigateUp()
+                },
+                reflexionId = reflexionId
+            )
+        }
+        composable<Screen.ReflexionListScreen> {
+            ReflexionListScreen(
+                goToCreate = {
+                    navHostController.navigate(Screen.ReflexionScreen(0))
+                },
+                goBack = {
+                    navHostController.navigateUp()
+                }
             )
         }
 
