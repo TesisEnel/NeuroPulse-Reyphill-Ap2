@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Date
 
-@Entity(tableName = "Usuarios")
+@Entity(tableName = "Reflexiones")
 data class ReflexionEntity(
     @PrimaryKey
     val reflexionId: Int,
