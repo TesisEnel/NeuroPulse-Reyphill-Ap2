@@ -2,6 +2,7 @@ package io.github.reyx38.neuropulse.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "Usuarios")
 data class UserEntity(
@@ -11,5 +12,5 @@ data class UserEntity(
     val email: String?,
     val telefono: String?,
     val token: String? = null,
-    val imagenPerfil: ByteArray? = null
+    val imagenPerfil: String? = null
 )
