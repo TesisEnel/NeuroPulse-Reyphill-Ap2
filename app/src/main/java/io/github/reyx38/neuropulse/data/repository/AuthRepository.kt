@@ -56,7 +56,7 @@ class AuthRepository @Inject constructor(
                     email = dto.email,
                     token = null,
                     telefono = dto.telefono,
-                    imagenPerfil = dto.imagenUrl?.toByteArray()
+                    imagenPerfil = dto.imagenUrl
                 )
                 local.save(updatedEntity)
 
