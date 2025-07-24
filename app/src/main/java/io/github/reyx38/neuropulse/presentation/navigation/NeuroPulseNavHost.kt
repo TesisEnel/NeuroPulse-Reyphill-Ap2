@@ -6,8 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import io.github.reyx38.neuropulse.presentation.ActividadesDiarias.ActividadesDiariasScreen
+import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.MenuSessionRespiracion
+import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionScreen
 import io.github.reyx38.neuropulse.presentation.experiencia.ReflexionScreen
-import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionBodyScreen
 import io.github.reyx38.neuropulse.presentation.home.Home
 import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionListScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.auth.login.LoginScreen
@@ -31,6 +32,9 @@ fun NeuroPulseNavHost(
                 },
                 goToReflexiones = {
                     navHostController.navigate(Screen.ReflexionListScreen)
+                },
+                goToRespiracion = {
+                    navHostController.navigate(Screen.RespiracionScreen)
                 }
             )
 
@@ -100,6 +104,13 @@ fun NeuroPulseNavHost(
                 }
             )
         }
+        composable<Screen.RespiracionScreen>{
+            MenuSessionRespiracion(
+                goBack = {},
+
+            )
+        }
+
 
     }
 }

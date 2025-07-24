@@ -1,6 +1,5 @@
 package io.github.reyx38.neuropulse.presentation.navigation
 
-import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import kotlinx.serialization.Serializable
 
 sealed class Screen {
@@ -18,4 +17,7 @@ sealed class Screen {
     data class ReflexionScreen(val reflexionId: Int): Screen()
     @Serializable
     data object ReflexionListScreen: Screen()
+    @Serializable
+    data object RespiracionScreen: Screen()
+
 }
