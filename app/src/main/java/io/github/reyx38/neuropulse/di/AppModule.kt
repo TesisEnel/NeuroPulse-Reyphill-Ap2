@@ -26,4 +26,6 @@ object AppModule {
     fun provideUsuarioDao(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.usuarioDao()
     @Provides
     fun provideReflexionDao(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.reflexionDao()
+    @Provides
+    fun provideRespiracionDao(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.respiracionDao()
 }
