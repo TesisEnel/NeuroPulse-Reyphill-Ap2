@@ -14,4 +14,6 @@ class RemoteDataSource @Inject constructor(
     //Reflexiones
     suspend fun getReflexiones(usuarioId: Int) = neuroPulseApi.getReflexiones(usuarioId)
     suspend fun saveReflexion(reflexionDto: ReflexionDto) = neuroPulseApi.saveReflexion(reflexionDto)
+    //Respiraciones
+    suspend fun getRespiraciones() = neuroPulseApi.getRespiraciones()
 }
