@@ -31,7 +31,8 @@ fun Home(
     navHostController: NavHostController,
     viewModel: UsuarioViewModel = hiltViewModel(),
     goToActividades: () -> Unit,
-    goToReflexiones: () -> Unit
+    goToReflexiones: () -> Unit,
+    goToRespiracion: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -62,7 +63,7 @@ fun Home(
                 subtitle = "Incompleto",
                 progress = 0.5f,
                 progressColor = MaterialTheme.colorScheme.secondary,
-                goActivity = {}
+                goActivity = {goToRespiracion()}
             )
 
             ActivityCard(
