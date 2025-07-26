@@ -85,7 +85,7 @@ class RegisterViewModel @Inject constructor(
                     telefono = _uiState.value.telefono,
                     token = null,
                     password = _uiState.value.password,
-                    imagenUrl = null
+                    imagenUrl = ""
                 )
 
                 authRepository.registar(dto).collect { result ->
