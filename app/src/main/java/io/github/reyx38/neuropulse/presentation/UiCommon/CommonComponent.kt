@@ -1,7 +1,10 @@
 package io.github.reyx38.neuropulse.presentation.UiCommon
 
+import android.util.Base64
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -12,6 +15,8 @@ import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,7 +29,9 @@ import kotlinx.coroutines.launch
 fun NeuroDrawerScaffold(
     title: String = "NeuroPulse",
     navHostController: NavHostController,
-    content: @Composable (PaddingValues) -> Unit
+    uiImagen: String?,
+
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -114,12 +121,38 @@ fun NeuroDrawerScaffold(
                             }
                         },
                         actions = {
-                            IconButton(onClick = {navHostController.navigate(Screen.UsuarioOptiones) }) {
-                                Icon(
-                                    Icons.Default.AccountCircle,
-                                    contentDescription = "Gestión usuarios",
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
+                            IconButton(onClick = { navHostController.navigate(Screen.UsuarioOptiones) }) {
+                                if (uiImagen == null) {
+                                    Icon(
+                                        Icons.Default.AccountCircle,
+                                        contentDescription = "Gestión usuarios",
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                } else {
+                                    val imageBytes = Base64.decode(uiImagen, Base64.DEFAULT)
+                                    val bitmap = remember(uiImagen) {
+                                        try {
+                                            android.graphics.BitmapFactory.decodeByteArray(
+                                                imageBytes,
+                                                0,
+                                                imageBytes.size
+                                            )
+                                                ?.asImageBitmap()
+                                        } catch (e: Exception) {
+                                            null
+                                        }
+                                    }
+
+                                    bitmap?.let {
+                                        Image(
+                                            bitmap = it,
+                                            contentDescription = "perfil",
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .clip(CircleShape)
+                                        )
+                                    }
+                                }
                             }
                         },
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
