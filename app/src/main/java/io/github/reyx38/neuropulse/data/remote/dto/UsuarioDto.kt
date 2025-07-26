@@ -7,4 +7,5 @@ data class UsuarioDto (
     val telefono: String?,
     val password: String?,
     val token: String?,
-    val imagenUrl: String? = null)
+    val imagenUrl: String?
+)
