@@ -35,6 +35,7 @@ class UsuarioViewModel @Inject constructor(
             is UsuarioEvent.NombreChange -> onNombreChange(event.nombre)
             is UsuarioEvent.TelefonoChange -> onTelefonoChange(event.telefono)
             is UsuarioEvent.UsuarioIdChange -> onUsuarioIdChange(event.usuarioId)
+            is UsuarioEvent.ImagenChange -> onImagenChange(event.imagen)
         }
     }
 
@@ -85,6 +86,10 @@ class UsuarioViewModel @Inject constructor(
     private fun onUsuarioIdChange(usuarioId: Int?) {
         _uiState.update { it.copy(usuarioId = usuarioId) }
     }
+    private fun onImagenChange(imagen: String?) {
+        _uiState.update { it.copy(imagen = imagen) }
+    }
+
 
     private fun new() {
         _uiState.update {
@@ -95,6 +100,7 @@ class UsuarioViewModel @Inject constructor(
                 email = "",
                 errorEmail = "",
                 telefono = "",
+                imagen = "",
                 errorTelefono = "",
                 usuario = null,
                 isUpdating = false
@@ -114,7 +120,7 @@ class UsuarioViewModel @Inject constructor(
                 nombre = currentState.nombre,
                 email = currentState.email,
                 telefono = currentState.telefono,
-                imagenUrl = null,
+                imagenUrl = currentState.imagen,
                 token = null,
                 password = null
             )
