@@ -36,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionEntity
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacion
+import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.RespiracionScreen
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionScreen
 import io.github.reyx38.neuropulse.ui.theme.NeuroPulseTheme
 
@@ -44,6 +45,7 @@ import io.github.reyx38.neuropulse.ui.theme.NeuroPulseTheme
 fun MenuSessionRespiracion(
     viewModel: RespiracionViewModel = hiltViewModel(),
     goBack: () -> Unit,
+    goToSesion: () -> Unit
 
 ) {
     var selectedRespiracionId by remember { mutableStateOf<Int?>(null) }
@@ -80,11 +82,10 @@ fun MenuSessionRespiracion(
 
             selectedRespiracionId?.let { id ->
                 SesionScreen(
+                    viewModel = viewModel,
                     idrespiracion = id,
                     onDismiss = { selectedRespiracionId = null },
-                    onStartSession = { minutos ->
-                        selectedRespiracionId = null
-                    },
+                    onStartSession = goToSesion,
                     onShowHelp = { /* Aquí manejas ayuda si quieres */ }
                 )
             }
