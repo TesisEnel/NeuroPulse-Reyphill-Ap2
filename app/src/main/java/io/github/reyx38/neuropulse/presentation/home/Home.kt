@@ -32,13 +32,14 @@ fun Home(
     viewModel: UsuarioViewModel = hiltViewModel(),
     goToActividades: () -> Unit,
     goToReflexiones: () -> Unit,
-    goToRespiracion: () -> Unit
+    goToRespiracion: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         viewModel.getUsuario()
     }
-    NeuroDrawerScaffold(navHostController = navHostController,) {
+    NeuroDrawerScaffold(navHostController = navHostController,
+        uiImagen = uiState.usuario?.imagenPerfil) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
