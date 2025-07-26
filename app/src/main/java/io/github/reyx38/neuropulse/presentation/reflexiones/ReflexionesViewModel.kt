@@ -133,5 +133,5 @@ fun ReflexionesUiState.toDto() = ReflexionDto(
     usuarioId = usuarioId ?: 0,
     descripcion = descripcion ?: " ",
     estadoReflexion = estadoReflexion ?: " ",
-    fechaCreacion = null
+    fechaCreacion = ""
 )
