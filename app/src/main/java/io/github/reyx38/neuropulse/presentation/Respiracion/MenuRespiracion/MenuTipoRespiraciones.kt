@@ -1,11 +1,12 @@
 package io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,16 +17,15 @@ import androidx.compose.material.icons.filled.LineAxis
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +39,7 @@ import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacio
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.RespiracionScreen
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionScreen
 import io.github.reyx38.neuropulse.ui.theme.NeuroPulseTheme
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,11 +47,10 @@ fun MenuSessionRespiracion(
     viewModel: RespiracionViewModel = hiltViewModel(),
     goBack: () -> Unit,
     goToSesion: () -> Unit
-
 ) {
     var selectedRespiracionId by remember { mutableStateOf<Int?>(null) }
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,13 +71,11 @@ fun MenuSessionRespiracion(
         }
     ) {
         Column(
-            modifier = Modifier
-                .padding(it)
+            modifier = Modifier.padding(it)
         ) {
             BreathingPatternGridMenu(
                 uiState,
                 goToSesion = { id -> selectedRespiracionId = id }
-
             )
 
             selectedRespiracionId?.let { id ->
@@ -86,13 +84,11 @@ fun MenuSessionRespiracion(
                     idrespiracion = id,
                     onDismiss = { selectedRespiracionId = null },
                     onStartSession = goToSesion,
-                    onShowHelp = { /* Aquí manejas ayuda si quieres */ }
+
                 )
             }
         }
     }
-
-
 }
 
 @Composable
@@ -100,21 +96,21 @@ fun BreathingPatternGridMenu(
     uiState: RespiracionUiState,
     goToSesion: (Int) -> Unit
 ) {
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(100)
+        isVisible = true
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = "Selecciona la técnica que mejor se adapte a tu momento",
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
+        AnimatedHeaderText(isVisible = isVisible)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -124,11 +120,103 @@ fun BreathingPatternGridMenu(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(uiState.respiraciones) { pattern ->
-                RespiracionGridCard(pattern, onClick = {},goToSesion)
+            itemsIndexed(uiState.respiraciones) { index, pattern ->
+                AnimatedRespiracionGridCard(
+                    respiracion = pattern,
+                    index = index,
+                    isVisible = isVisible,
+                    goToSesion = goToSesion
+                )
             }
         }
     }
+}
+
+@Composable
+fun AnimatedHeaderText(isVisible: Boolean) {
+    val animationSpec = tween<Float>(
+        durationMillis = 800,
+        easing = FastOutSlowInEasing
+    )
+
+    val alpha by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = animationSpec,
+        label = "header_alpha"
+    )
+
+    val offsetY by animateFloatAsState(
+        targetValue = if (isVisible) 0f else -30f,
+        animationSpec = animationSpec,
+        label = "header_offset"
+    )
+
+    Text(
+        text = "Selecciona la técnica que mejor se adapte a tu momento",
+        fontSize = 16.sp,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                this.alpha = alpha
+                translationY = offsetY
+            }
+    )
+}
+
+@Composable
+fun AnimatedRespiracionGridCard(
+    respiracion: RespiracionWithInformacion,
+    index: Int,
+    isVisible: Boolean,
+    goToSesion: (Int) -> Unit
+) {
+    // Delay escalonado basado en el índice
+    val delayMillis = index * 150
+
+    val animationSpec = tween<Float>(
+        durationMillis = 600,
+        delayMillis = delayMillis,
+        easing = FastOutSlowInEasing
+    )
+
+    val scaleAnimationSpec = tween<Float>(
+        durationMillis = 700,
+        delayMillis = delayMillis,
+        easing = OvershootInterpolator(1.2f).toEasing()
+    )
+
+    val alpha by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = animationSpec,
+        label = "card_alpha_$index"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0.8f,
+        animationSpec = scaleAnimationSpec,
+        label = "card_scale_$index"
+    )
+
+    val offsetY by animateFloatAsState(
+        targetValue = if (isVisible) 0f else 50f,
+        animationSpec = animationSpec,
+        label = "card_offset_$index"
+    )
+
+    RespiracionGridCard(
+        respiracion = respiracion,
+        onClick = {},
+        goToSesion = goToSesion,
+        modifier = Modifier
+            .graphicsLayer {
+                this.alpha = alpha
+                scaleX = scale
+                scaleY = scale
+                translationY = offsetY
+            }
+    )
 }
 
 // Función auxiliar para ícono y colores
@@ -178,15 +266,27 @@ fun getVisualForRespiracion(nombre: String?): RespiracionVisual {
 fun RespiracionGridCard(
     respiracion: RespiracionWithInformacion,
     onClick: () -> Unit,
-    goToSesion: (Int) -> Unit
+    goToSesion: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val visual = getVisualForRespiracion(respiracion.respiracion.nombre)
 
+    // Animación para el hover/click
+    var isPressed by remember { mutableStateOf(false) }
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = tween(100),
+        label = "press_scale"
+    )
+
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clickable { goToSesion(respiracion.respiracion.idRespiracion)
+            .scale(pressScale)
+            .clickable {
+                isPressed = true
+                goToSesion(respiracion.respiracion.idRespiracion)
             },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -209,24 +309,8 @@ fun RespiracionGridCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.radialGradient(
-                                colors = visual.gradientColors.map { it.copy(alpha = 0.25f) }
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = visual.icon,
-                        contentDescription = null,
-                        tint = visual.color,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+                // Animación del ícono
+                AnimatedIcon(visual = visual)
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -243,6 +327,57 @@ fun RespiracionGridCard(
             }
         }
     }
+
+    // Resetear estado de presión
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            delay(100)
+            isPressed = false
+        }
+    }
+}
+
+@Composable
+fun AnimatedIcon(visual: RespiracionVisual) {
+    val infiniteTransition = rememberInfiniteTransition(label = "icon_animation")
+
+    val iconScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "icon_scale"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(60.dp)
+            .clip(CircleShape)
+            .background(
+                Brush.radialGradient(
+                    colors = visual.gradientColors.map { it.copy(alpha = 0.25f) }
+                )
+            )
+            .scale(iconScale),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = visual.icon,
+            contentDescription = null,
+            tint = visual.color,
+            modifier = Modifier.size(32.dp)
+        )
+    }
+}
+
+fun OvershootInterpolator(tension: Float = 2f): android.view.animation.Interpolator {
+    return android.view.animation.OvershootInterpolator(tension)
+}
+
+fun android.view.animation.Interpolator.toEasing(): Easing {
+    return Easing { fraction -> this.getInterpolation(fraction) }
 }
 
 @Preview(showBackground = true)
@@ -282,6 +417,17 @@ fun PreviewBreathingPatternGridMenu() {
                 exhalarSegundos = 4
             ),
             informacionRespiracion = emptyList()
+        ),
+        RespiracionWithInformacion(
+            respiracion = RespiracionEntity(
+                idRespiracion = 4,
+                nombre = "Respiración 4-4",
+                descripcion = "Equilibrio y focus",
+                inhalarSegundos = 4,
+                mantenerSegundos = 0,
+                exhalarSegundos = 4
+            ),
+            informacionRespiracion = emptyList()
         )
     )
 
@@ -291,5 +437,4 @@ fun PreviewBreathingPatternGridMenu() {
             {}
         )
     }
-
 }
