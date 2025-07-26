@@ -18,7 +18,7 @@ import io.github.reyx38.neuropulse.data.local.entities.RespiracionEntity
         RespiracionEntity::class,
         InformacionRespiracionEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 
