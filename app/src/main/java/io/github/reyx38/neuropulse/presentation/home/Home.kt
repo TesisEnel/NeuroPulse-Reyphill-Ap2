@@ -1,11 +1,15 @@
 package io.github.reyx38.neuropulse.presentation.home
 
 import io.github.reyx38.neuropulse.R
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -13,17 +17,24 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioViewModel
+import io.github.reyx38.neuropulse.ui.theme.*
+
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,89 +46,183 @@ fun Home(
     goToRespiracion: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var isVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.getUsuario()
+        delay(100)
+        isVisible = true
     }
-    NeuroDrawerScaffold(navHostController = navHostController,
-        uiImagen = uiState.usuario?.imagenPerfil) {
-        Column(
+
+    NeuroDrawerScaffold(
+        navHostController = navHostController,
+        uiImagen = uiState.usuario?.imagenPerfil
+    ) {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            primaryContainerLight.copy(alpha = 0.95f),
+                            surfaceContainerLight,
+                            surfaceBrightLight
+                        )
+                    )
+                )
         ) {
-            GreetingCard( nombre = uiState.usuario?.nombreUsuario )
-            ActivityCard(
-                icon = R.drawable.brain,
-                title = "Tus Actividades Diarias",
-                subtitle = "3/4 completadas",
-                progress = 0.8f,
-                progressColor = MaterialTheme.colorScheme.primary,
-                goActivity = {goToActividades()}
-            )
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(tween(800)) + slideInVertically(
+                    initialOffsetY = { it / 3 },
+                    animationSpec = tween(800, easing = EaseOutCubic)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    GreetingCard(nombre = uiState.usuario?.nombreUsuario)
 
-            ActivityCard(
-                icon = R.drawable.img_1,
-                title = "Ejercicio de respiración",
-                subtitle = "Incompleto",
-                progress = 0.5f,
-                progressColor = MaterialTheme.colorScheme.secondary,
-                goActivity = {goToRespiracion()}
-            )
+                    Text(
+                        text = "Tus Actividades de Hoy",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = onPrimaryContainerLight,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp)
+                    )
 
-            ActivityCard(
-                icon = R.drawable.img,
-                title = "Reflexión Escrita",
-                subtitle = "2 notas escritas",
-                progress = null,
-                progressColor = MaterialTheme.colorScheme.tertiary,
-                goActivity = {goToReflexiones()}
-            )
+                    ActivityCard(
+                        icon = R.drawable.brain,
+                        title = "Actividades Diarias",
+                        subtitle = "3 de 4 completadas",
+                        progress = 0.75f,
+                        progressColor = tertiaryContainerLight,
+                        goActivity = goToActividades
+                    )
+
+                    ActivityCard(
+                        icon = R.drawable.img_1,
+                        title = "Ejercicio de Respiración",
+                        subtitle = "Incompleto",
+                        progress = 0.5f,
+                        progressColor = secondaryContainerLight,
+                        goActivity = goToRespiracion
+                    )
+
+                    ActivityCard(
+                        icon = R.drawable.img,
+                        title = "Reflexión Escrita",
+                        subtitle = "2 notas escritas",
+                        progress = null,
+                        progressColor = primaryLight,
+                        goActivity = goToReflexiones
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun GreetingCard(
-    nombre: String?
-) {
+private fun GreetingCard(nombre: String?) {
     val frase = remember { getFrase() }
+    var animateIcon by remember { mutableStateOf(false) }
 
-    Column(
+    LaunchedEffect(Unit) {
+        delay(300)
+        animateIcon = true
+    }
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .shadow(8.dp, RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = primaryContainerLight
+        )
     ) {
-        Image(
-            painter = painterResource(R.drawable.brain),
-            contentDescription = "Brain icon",
-            modifier = Modifier.size(72.dp)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(28.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val scale by animateFloatAsState(
+                targetValue = if (animateIcon) 1f else 0.3f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
 
-        Text(
-            text = "¡Buenas $nombre!",
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            color = MaterialTheme.colorScheme.onBackground
-        )
+            Box(
+                modifier = Modifier
+                    .size(96.dp)
+                    .scale(scale)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                primaryLight.copy(alpha = 0.25f),
+                                Color.Transparent
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.brain),
+                    contentDescription = "Brain icon",
+                    modifier = Modifier.size(56.dp)
+                )
+            }
 
-        Text(
-            text = "¿Listo para tu entrenamiento Diario?",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "¡Hola, $nombre! 👋",
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    color = onPrimaryContainerLight,
+                    textAlign = TextAlign.Center
+                )
 
-        Text(
-            text = frase,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 12.dp)
-        )
+                Text(
+                    text = "¿Listo para entrenar tu mente hoy?",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                    color = onPrimaryContainerLight.copy(alpha = 0.85f),
+                    textAlign = TextAlign.Center
+                )
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = surfaceContainerHighLight
+                ) {
+                    Text(
+                        text = "💭 \"$frase\"",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 20.sp
+                        ),
+                        color = onSurfaceLight,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -130,52 +235,75 @@ private fun ActivityCard(
     progressColor: Color,
     goActivity: () -> Unit
 ) {
+    var isPressed by remember { mutableStateOf(false) }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh
+        )
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .clickable(onClick = { goActivity() }),
-        shape = RoundedCornerShape(12.dp),
+            .scale(scale)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                isPressed = true
+                goActivity()
+            }
+            .shadow(6.dp, RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        elevation = CardDefaults.cardElevation(2.dp),
+            containerColor = surfaceContainerLight
+        )
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxWidth()
+                .padding(24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                progressColor.copy(alpha = 0.25f),
+                                Color.Transparent
+                            )
+                        )
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(icon),
                     contentDescription = title,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(36.dp)
                 )
             }
 
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = onSurfaceLight
                 )
 
                 Text(
                     text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = outlineLight
                 )
 
                 progress?.let {
@@ -183,12 +311,19 @@ private fun ActivityCard(
                         progress = it,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp)),
                         color = progressColor,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        trackColor = progressColor.copy(alpha = 0.2f)
                     )
                 }
+            }
+        }
+
+        LaunchedEffect(isPressed) {
+            if (isPressed) {
+                delay(150)
+                isPressed = false
             }
         }
     }
