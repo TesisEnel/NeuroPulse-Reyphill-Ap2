@@ -18,6 +18,8 @@ sealed class Screen {
     @Serializable
     data object ReflexionListScreen: Screen()
     @Serializable
+    data object MenuRespiraciones: Screen()
+    @Serializable
     data object RespiracionScreen: Screen()
 
 }
