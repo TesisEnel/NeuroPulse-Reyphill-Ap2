@@ -27,6 +27,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.LogoutScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ProfileDetailScreen
+import kotlin.io.encoding.ExperimentalEncodingApi
+import android.util.Base64
+import androidx.compose.ui.graphics.asImageBitmap
 
 
 @Composable
@@ -191,7 +194,7 @@ fun MainProfileScreen(
         ) {
             ProfileHeader(
                 uiSate.usuario?.nombreUsuario,
-                uiSate.usuario?.email
+                uiSate.usuario?.imagenPerfil
             )
 
             ProfileMenuItem(
@@ -237,6 +240,7 @@ fun MainProfileScreen(
     }
 }
 
+@OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun ProfileHeader(
     uiName: String?,
@@ -251,31 +255,39 @@ fun ProfileHeader(
         Box(
             modifier = Modifier.size(120.dp)
         ) {
-            Image(
-                painter = painterResource(R.drawable.brain),
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentScale = ContentScale.Crop
-            )
+            if (!uiImagen.isNullOrEmpty()) {
+                val imageBytes = Base64.decode(uiImagen, Base64.DEFAULT)
+                val bitmap = remember(uiImagen) {
+                    try {
+                        android.graphics.BitmapFactory.decodeByteArray(
+                            imageBytes,
+                            0,
+                            imageBytes.size
+                        )
+                            ?.asImageBitmap()
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
 
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .align(Alignment.BottomEnd)
-                    .background(
-                        MaterialTheme.colorScheme.primary,
-                        CircleShape
+                bitmap?.let {
+                    Image(
+                        bitmap = it,
+                        contentDescription = "perfil",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
                     )
-                    .padding(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Verified",
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(20.dp)
+                }
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.brain),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
