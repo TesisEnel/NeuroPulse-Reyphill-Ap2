@@ -8,20 +8,20 @@ fun RespiracionEntity.toDto(): RespiracionesDto {
         idRespiracion,
         nombre,
         descripcion,
-        inhalarSegundos,
-        mantenerSegundos,
-        exhalarSegundos,
-        emptyList()
+        inhalarSegundos = inhalarSegundos,
+        mantenerSegundos = mantenerSegundos,
+        exhalarSegundos = exhalarSegundos,
+        informacionRespiracion = emptyList()
     )
 }
 
-fun RespiracionesDto.toEntity(): RespiracionEntity{
+fun RespiracionesDto.toEntity(): RespiracionEntity {
     return RespiracionEntity(
         idRespiracion,
         nombre,
         descripcion,
-        exhalarSegundos,
-        mantenerSegundos,
-        inhalarSegundos
+        inhalarSegundos = inhalarSegundos,
+        mantenerSegundos = mantenerSegundos,
+        exhalarSegundos = exhalarSegundos,
     )
 }
