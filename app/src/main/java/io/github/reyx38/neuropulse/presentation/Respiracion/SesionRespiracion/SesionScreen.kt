@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionEntity
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacion
+import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiEvent
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiState
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.getVisualForRespiracion
@@ -40,26 +41,26 @@ import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.getV
 @Composable
 fun SesionScreen(
     idrespiracion: Int,
-    viewModel: RespiracionViewModel = hiltViewModel(),
+    viewModel: RespiracionViewModel,
     onDismiss: () -> Unit = {},
-    onStartSession: (Int) -> Unit = {},
+    onStartSession: () -> Unit = {},
     onShowHelp: () -> Unit = {}
 ) {
-    var selectedMinutes by remember { mutableIntStateOf(5) }
     var showHelpDialog by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(idrespiracion) {
         viewModel.buscarRespiracion(idrespiracion)
+        viewModel.onEvent(RespiracionUiEvent.RespiracionChange(idrespiracion))
     }
 
     if (uiState.respiracion != null) {
 
         RespiracionSessionDialog(
             pattern = uiState.respiracion,
-            selectedMinutes = selectedMinutes,
-            onMinutesChanged = { selectedMinutes = it },
+            selectedMinutes = uiState.duracionMinutos,
+            onMinutesChanged = { viewModel.onEvent(RespiracionUiEvent.DuracionMinutos(it)) },
             onDismiss = onDismiss,
-            onStartSession = { onStartSession(selectedMinutes) },
+            onStartSession = onStartSession,
             onShowHelp = { showHelpDialog = true }
         )
     }
@@ -218,7 +219,7 @@ fun RespiracionSessionDialog(
                     val cycleTime = pattern.respiracion.inhalarSegundos +
                             pattern.respiracion.mantenerSegundos +
                             pattern.respiracion.exhalarSegundos
-                    val estimatedCycles = (selectedMinutes * 60) / cycleTime
+                    val estimatedCycles = (selectedMinutes!! * 60) / cycleTime
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -288,7 +289,11 @@ fun PatternStep(label: String, duration: String) {
 }
 
 @Composable
-fun DurationChip(minutes: Int, isSelected: Boolean, onClick: () -> Unit) {
+fun DurationChip(
+    minutes: Int,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
     val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.1f else 1f,
         animationSpec = tween(200),
@@ -403,7 +408,5 @@ fun PreviewSesion() {
             ),
             informacionRespiracion = emptyList()
         )
-    SesionScreen(
-        1
-    )
+
 }
