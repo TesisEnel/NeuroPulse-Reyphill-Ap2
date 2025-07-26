@@ -135,7 +135,7 @@ fun ReflexionBodyScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             AnimatedVisibility(
                 visible = uiState.isLoading,
@@ -191,7 +191,6 @@ fun ReflexionItem(
     reflexion: ReflexionDto?,
     usuario: UserEntity?
 ) {
-    val dateFormatter = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
 
     Card(
         modifier = Modifier
@@ -230,7 +229,7 @@ fun ReflexionItem(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "${usuario?.nombreUsuario} • ${reflexion?.estadoReflexion}",
+                    text = "${usuario?.nombreUsuario} • ${reflexion?.estadoReflexion?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
@@ -250,7 +249,7 @@ fun ReflexionItem(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = reflexion?.fechaCreacion?.let { dateFormatter.format(it) }
+                    text = reflexion?.fechaCreacion
                         ?: "Sin fecha",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp
