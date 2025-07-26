@@ -22,19 +22,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionEntity
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacion
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiEvent
-import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiState
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.getVisualForRespiracion
 
@@ -44,7 +41,6 @@ fun SesionScreen(
     viewModel: RespiracionViewModel,
     onDismiss: () -> Unit = {},
     onStartSession: () -> Unit = {},
-    onShowHelp: () -> Unit = {}
 ) {
     var showHelpDialog by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
