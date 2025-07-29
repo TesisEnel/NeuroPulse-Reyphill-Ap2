@@ -5,11 +5,11 @@ import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import io.github.reyx38.neuropulse.data.remote.dto.SesionRespiracionDto
 
 data class RespiracionUiState(
-    val respiracionId: Int? = null,
+    val respiracionId: Int = 0,
     var duracionMinutos: Int = 5,
-    val usuarioId: Int? = null,
+    val usuarioId: Int = 0,
     val user: UserEntity? = null,
-    val estado: String? = null, // Completado, pausado, interrupido
+    val estado: String = "", // Completado, pausado, interrupido
     val isLoading: Boolean = false,
     val respiraciones: List<RespiracionWithInformacion> = emptyList(),
     val respiracion: RespiracionWithInformacion? = null,
@@ -17,9 +17,10 @@ data class RespiracionUiState(
 )
 
 fun RespiracionUiState.toDto() = SesionRespiracionDto(
-    respiracionid =  respiracionId,
-    usuarioId = usuarioId,
+    idRespiracion =  respiracionId,
+    idUsuario = usuarioId,
     estado = estado,
     duracionMinutos = duracionMinutos,
-    sesionId = 0
+    fechaRealizada = "",
+    idSesionRespiracion = 0
 )
