@@ -7,6 +7,8 @@ import io.github.reyx38.neuropulse.data.local.enum.EstadosRespiracion
 import io.github.reyx38.neuropulse.data.remote.Resource
 import io.github.reyx38.neuropulse.data.repository.AuthRepository
 import io.github.reyx38.neuropulse.data.repository.RespiracionRepository
+import io.github.reyx38.neuropulse.data.repository.SesionRespository
+import io.github.reyx38.neuropulse.presentation.reflexiones.toDto
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -16,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RespiracionViewModel @Inject constructor(
     private val repository: RespiracionRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val sesionRespository: SesionRespository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RespiracionUiState())
@@ -48,11 +51,13 @@ class RespiracionViewModel @Inject constructor(
     fun getUsuario() {
         viewModelScope.launch {
             val user = authRepository.getUsuario()
-            _uiState.update {
-                it.copy(
-                    usuarioId = user?.usuarioId,
-                    user = user,
-                )
+            if (user!!.usuarioId != null) {
+                _uiState.update {
+                    it.copy(
+                        usuarioId = user.usuarioId,
+                        user = user,
+                    )
+                }
             }
         }
     }
@@ -62,15 +67,18 @@ class RespiracionViewModel @Inject constructor(
             is RespiracionUiEvent.DuracionMinutos -> onChangeMinutos(event.minutos)
             is RespiracionUiEvent.RespiracionChange -> onChangeRespiracion(event.respiracionId)
             is RespiracionUiEvent.UsuarioChange -> onChangeUsuario(event.usuarioId)
+            is RespiracionUiEvent.EstadoChange -> onChangeEstado(event.estado)
             RespiracionUiEvent.New -> {}
-            RespiracionUiEvent.Save -> {}
+            RespiracionUiEvent.Save -> save()
         }
     }
 
     private fun onChangeUsuario(usuarioId: Int) {
         _uiState.update { it.copy(usuarioId = usuarioId) }
     }
-
+    private fun onChangeEstado(estado: String) {
+        _uiState.update { it.copy(estado = estado) }
+    }
     private fun onChangeRespiracion(respiracionId: Int) {
         _uiState.update { it.copy(respiracionId = respiracionId) }
     }
@@ -265,6 +273,22 @@ class RespiracionViewModel @Inject constructor(
                 _uiState.update { it.copy(estado = "Pausado") }
                 pausedTimeMs = System.currentTimeMillis()
             }
+        }
+    }
+
+    private fun save(){
+        viewModelScope.launch {
+            val result = sesionRespository.save(_uiState.value.toDto())
+            _uiState.update {
+                it.copy(
+                    error = when (result) {
+                        is Resource.Success -> "Reflexión guardada correctamente"
+                        is Resource.Error -> result.message ?: "Error al guardar la reflexión"
+                        else -> null
+                    }
+                )
+            }
+
         }
     }
 
