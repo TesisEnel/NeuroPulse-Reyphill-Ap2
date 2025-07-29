@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -26,11 +27,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.DialogProperties
 import io.github.reyx38.neuropulse.data.local.enum.EstadosRespiracion
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiEvent
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiState
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
+import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
+import io.github.reyx38.neuropulse.presentation.UiCommon.TimerUtils.formatTimeMs
+import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 
 @Composable
 fun RespiracionScreen(
@@ -73,13 +76,31 @@ fun BreathingCircle(
     // Crear fases solo para las que tienen duración > 0
     val phases = buildList {
         if (pattern.respiracion!!.respiracion.inhalarSegundos > 0) {
-            add(BreathingPhase("Inhala", pattern.respiracion.respiracion.inhalarSegundos * 1000L, MaterialTheme.colorScheme.tertiary))
+            add(
+                BreathingPhase(
+                    "Inhala",
+                    pattern.respiracion.respiracion.inhalarSegundos * 1000L,
+                    MaterialTheme.colorScheme.tertiary
+                )
+            )
         }
         if (pattern.respiracion.respiracion.mantenerSegundos > 0) {
-            add(BreathingPhase("Mantén", pattern.respiracion.respiracion.mantenerSegundos * 1000L, MaterialTheme.colorScheme.secondary))
+            add(
+                BreathingPhase(
+                    "Mantén",
+                    pattern.respiracion.respiracion.mantenerSegundos * 1000L,
+                    MaterialTheme.colorScheme.secondary
+                )
+            )
         }
         if (pattern.respiracion.respiracion.exhalarSegundos > 0) {
-            add(BreathingPhase("Exhala", pattern.respiracion.respiracion.exhalarSegundos * 1000L, MaterialTheme.colorScheme.primary))
+            add(
+                BreathingPhase(
+                    "Exhala",
+                    pattern.respiracion.respiracion.exhalarSegundos * 1000L,
+                    MaterialTheme.colorScheme.primary
+                )
+            )
         }
     }
 
@@ -92,12 +113,6 @@ fun BreathingCircle(
         }
     } ?: phases.firstOrNull() ?: BreathingPhase("Detenido", 0L, Color.Gray)
 
-    fun formatTimeMs(ms: Long): String {
-        val totalSeconds = ms / 1000
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
-        return String.format("%02d:%02d", minutes, seconds)
-    }
 
     // Función para manejar la salida
     fun handleExit() {
@@ -334,125 +349,60 @@ fun BreathingCircle(
 
         Spacer(modifier = Modifier.height(16.dp))
     }
+    //Dialog para termine la sesion
+    if (remainingTimeMs <= 0L && !isRunning ){
+        ConfirmationDialog(
+            onConfirm = {
+                onEvent(RespiracionUiEvent.EstadoChange("completo"))
+                onBackPressed()
+                onEvent(RespiracionUiEvent.Save)
+            },
+            onDismiss = {
+                viewModel.resetSesion()
+            },
+            iconoSuperior = Icons.Default.AddTask,
+            titulo = "Felicidades, Sesion Completada",
+            subTitulo = "La sesion ha terminado:",
+            listaCondiciones = listOf(
+                "• Se agregara a tu historial de respiracion",
+                "• La sesión quedará marcada como completa",
+            ),
+            textoInferior = getFrase(),
+            textoBotonConfirmacion = "Continuar",
+            textoBotonDenegar = "Repetir sesion"
+        )
 
-    // Diálogo de confirmación de salida
+    }
+
+    //Dialgo para cuando el usuario intente dejar la sesion incompleta
     if (showExitDialog) {
-        ExitConfirmationDialog(
+        ConfirmationDialog(
             onConfirm = {
                 showExitDialog = false
                 // Pausar la sesión si está corriendo
                 if (isRunning) {
                     viewModel.togglePlayPause()
                 }
-                // Marcar sesión como incompleta si es necesario
+                onEvent(RespiracionUiEvent.EstadoChange("Incompleto"))
                 onBackPressed()
+                onEvent(RespiracionUiEvent.Save)
             },
             onDismiss = {
                 showExitDialog = false
             },
-            isSessionActive = isRunning || remainingTimeMs > 0
+            iconoSuperior = Icons.Default.Warning,
+            titulo = "¿Salir de la sesión?",
+            subTitulo = "Tu sesión de respiración está en progreso. Si sales ahora:",
+            listaCondiciones = listOf(
+                "• Se perderá todo el progreso actual",
+                "• La sesión quedará marcada como incompleta",
+                "• La sesion respiración se detendrá automáticamente"
+            ),
+            textoInferior = "¿Seguro que desea salir?",
+            textoBotonConfirmacion = "Si, salir",
+            textoBotonDenegar = "Continuar sesion"
         )
     }
-}
-
-@Composable
-fun ExitConfirmationDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    isSessionActive: Boolean
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(32.dp)
-            )
-        },
-        title = {
-            Text(
-                text = "¿Salir de la sesión?",
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        },
-        text = {
-            Column {
-                Text(
-                    text = if (isSessionActive) {
-                        "Tu sesión de respiración está en progreso. Si sales ahora:"
-                    } else {
-                        "Si sales ahora:"
-                    },
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "• Se perderá todo el progreso actual",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    fontSize = 14.sp
-                )
-
-                Text(
-                    text = "• La sesión quedará marcada como incompleta",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    fontSize = 14.sp
-                )
-
-                if (isSessionActive) {
-                    Text(
-                        text = "• La respiración se detendrá automáticamente",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                        fontSize = 14.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "¿Estás seguro de que quieres salir?",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text(
-                    text = "Sí, salir",
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    text = "Continuar sesión",
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        },
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false
-        ),
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 8.dp
-    )
 }
 
 data class BreathingPhase(
