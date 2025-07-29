@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -25,11 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
-import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.LogoutScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ProfileDetailScreen
 import kotlin.io.encoding.ExperimentalEncodingApi
 import android.util.Base64
 import androidx.compose.ui.graphics.asImageBitmap
+import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
+import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ConfiguracionUsuarios
+import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.FavoritasFrasesScreen
 
 
 @Composable
@@ -59,8 +60,8 @@ fun ProfileScreen(
                 onBack = { vistaActual.value = "main" })
         }
 
-        "favorite" -> FavoriteScreen(onBack = { vistaActual.value = "main" })
-        "settings" -> SettingsScreen(onBack = { vistaActual.value = "main" })
+        "favorite" -> FavoritasFrasesScreen(onBack = { vistaActual.value = "main" })
+        "settings" -> ConfiguracionUsuarios(onBack = { vistaActual.value = "main" })
         "logout" -> {
             MainProfileScreen(
                 uiSate = uiState,
@@ -69,76 +70,6 @@ fun ProfileScreen(
                 isView = true,
                 onNavigateLogin = goToLogout,
                 onEvent = viewModel::onEvent
-            )
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SettingsScreen(onBack: () -> Unit) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Configuraciones",
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
-                    }
-                }
-            )
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text("Aquí irán los ajustes del usuario.", style = MaterialTheme.typography.bodyLarge)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FavoriteScreen(onBack: () -> Unit) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Frases favoritas",
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                }
-            )
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                "Aquí aparecerán tus elementos favoritos.",
-                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
@@ -155,7 +86,6 @@ fun MainProfileScreen(
     isView: Boolean = false,
 ) {
     var showLogoutDialog by remember { mutableStateOf(isView) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -199,7 +129,7 @@ fun MainProfileScreen(
 
             ProfileMenuItem(
                 icon = Icons.Default.Person,
-                title = "Profile",
+                title = "Perfil",
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 iconColor = MaterialTheme.colorScheme.primary,
                 onClick = { onSectionSelect("profile") }
@@ -207,14 +137,14 @@ fun MainProfileScreen(
 
             ProfileMenuItem(
                 icon = Icons.Default.Favorite,
-                title = "Favorite",
+                title = "Frases favoritas",
                 backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
                 iconColor = MaterialTheme.colorScheme.secondary,
                 onClick = { onSectionSelect("favorite") }
             )
             ProfileMenuItem(
                 icon = Icons.Default.Settings,
-                title = "Settings",
+                title = "Configuracion",
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 onClick = { onSectionSelect("settings") }
@@ -222,20 +152,31 @@ fun MainProfileScreen(
 
             ProfileMenuItem(
                 icon = Icons.Default.ExitToApp,
-                title = "Logout",
+                title = "Cerrar sesion",
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 onClick = { showLogoutDialog = true }
             )
 
-            LogoutScreen(
-                isVisible = showLogoutDialog,
-                onDismiss = { showLogoutDialog = false },
-                onConfirmLogout = {
-                    showLogoutDialog = false
-                    onEvent(UsuarioEvent.Delete)
-                    onNavigateLogin()
-                })
+            if (showLogoutDialog) {
+                ConfirmationDialog(
+                    onConfirm = {
+                        showLogoutDialog = false
+                        onEvent(UsuarioEvent.Delete)
+                        onNavigateLogin()
+                    },
+                    onDismiss = { showLogoutDialog = false },
+                    iconoSuperior = Icons.Default.ExitToApp,
+                    titulo = "Cerrar sesion",
+                    subTitulo = "¿Estás seguro de que deseas cerrar sesión?",
+                    listaCondiciones = listOf(
+                        "• No podra volver a iniciar sesion sin internet",
+                    ),
+                    textoInferior = "¿Seguro que desea cerrar sesion?",
+                    textoBotonConfirmacion = "Si, cerrar ",
+                    textoBotonDenegar = "No, mantener"
+                )
+            }
         }
     }
 }
