@@ -14,21 +14,23 @@ class SesionRespository @Inject constructor(
     private val sesionDao: SesionRespiracionDao,
     private val neuroPulseApi: NeuroPulseApi
 ) {
-    fun getSesiones(usuarioId: Int): Flow<Resource<List<SesionRespiracionDto>>> {
-        return flow {
-            emit(Resource.Loading())
-            val localFlow = sesionDao.getSesiones(usuarioId)
-                .map {
-                    it.toDto()
-                }
-            try {
-                val remote = neuroPulseApi.getSesionRespiraciones(usuarioId)
-                remote.forEach { sesionDao.saveSesion(it.toEntity()) }
-            } catch (e: Exception) {
-                emit(Resource.Error("Error: ${e.localizedMessage ?: "Error desconocido"}"))
-            }
-            Resource.Success(localFlow)
+    fun getSesiones(usuarioId: Int): Flow<Resource<List<SesionRespiracionDto>>> = flow {
+        emit(Resource.Loading())
+        var localList = sesionDao.getSesiones(usuarioId)
+            .map { it.toDto() }
+        try {
+            // Sincroniza la data remota con la local
+            val remote = neuroPulseApi.getSesionRespiraciones(usuarioId)
+            remote.forEach { sesionDao.saveSesion(it.toEntity()) }
+
+            // Luego consulta local y emite
+             localList = sesionDao.getSesiones(usuarioId)
+               .map { it.toDto() }
+        } catch (e: Exception) {
+            emit(Resource.Error("Error: ${e.localizedMessage ?: "Error desconocido"}"))
         }
+        emit(Resource.Success(localList))
+
 
     }
 
@@ -41,5 +43,7 @@ class SesionRespository @Inject constructor(
         } catch (e: Exception) {
             Resource.Error("Huubo un error al guardar los datos: ${e.localizedMessage}")
         }
+        sesionDao.saveSesion(sesionDto.toEntity())
+
     }
 }
