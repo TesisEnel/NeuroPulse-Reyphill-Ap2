@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Games
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.*
@@ -30,7 +31,6 @@ fun NeuroDrawerScaffold(
     title: String = "NeuroPulse",
     navHostController: NavHostController,
     uiImagen: String?,
-
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -39,8 +39,9 @@ fun NeuroDrawerScaffold(
 
     val drawerItems = listOf(
         DrawerItem("progress", "Progresión Semanal", Icons.Default.ShowChart),
-        DrawerItem("reflections", "Reflexiones", Icons.Default.EditNote),
-        DrawerItem("activities", "Actividades Diarias", Icons.Default.Games)
+        DrawerItem("reflections", "Reflexiones", Icons.Default.EditNote, Screen.ReflexionListScreen),
+        DrawerItem("activities", "Actividades Diarias", Icons.Default.Games),
+        DrawerItem("Sesiones", "Historial de sesiones", Icons.Default.History, Screen.Sesiones )
     )
 
     ModalNavigationDrawer(
