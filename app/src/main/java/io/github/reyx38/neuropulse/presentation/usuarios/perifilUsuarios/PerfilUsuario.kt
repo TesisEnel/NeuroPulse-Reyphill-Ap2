@@ -27,7 +27,10 @@ import io.github.reyx38.neuropulse.R
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ProfileDetailScreen
 import kotlin.io.encoding.ExperimentalEncodingApi
 import android.util.Base64
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.sp
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ConfiguracionUsuarios
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.FavoritasFrasesScreen
@@ -87,34 +90,52 @@ fun MainProfileScreen(
 ) {
     var showLogoutDialog by remember { mutableStateOf(isView) }
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Mi perfil",
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateMenu) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column {
+                    TopAppBar(
+                        title = {
+                            Column {
+                                Text(
+                                    text = "Mis Reflexiones",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = { onNavigateMenu() },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Atrás",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent
                         )
-                    }
-                },
-                actions = {
-                    Spacer(modifier = Modifier.width(48.dp))
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
+                    )
+
+
+                }
+            }
         }
-    ) { paddingValues ->
+    ){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -11,7 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.LineAxis
 import androidx.compose.material.icons.filled.SelfImprovement
@@ -20,9 +20,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -36,7 +36,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionEntity
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacion
-import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.RespiracionScreen
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionScreen
 import io.github.reyx38.neuropulse.ui.theme.NeuroPulseTheme
 import kotlinx.coroutines.delay
@@ -52,24 +51,50 @@ fun MenuSessionRespiracion(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Técnicas de Respiración",
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column {
+                    TopAppBar(
+                        title = {
+                            Column {
+                                Text(
+                                    text = "Tecnicas de respiracion",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = { goBack() },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Atrás",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent
+                        )
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = goBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
-                    }
                 }
-            )
+            }
         }
-    ) {
+    ){
         Column(
             modifier = Modifier.padding(it)
         ) {
@@ -271,7 +296,6 @@ fun RespiracionGridCard(
 ) {
     val visual = getVisualForRespiracion(respiracion.respiracion.nombre)
 
-    // Animación para el hover/click
     var isPressed by remember { mutableStateOf(false) }
     val pressScale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
