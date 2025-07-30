@@ -23,13 +23,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.reyx38.neuropulse.data.local.entities.RespiracionEntity
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacion
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiEvent
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
@@ -376,7 +374,7 @@ fun BreathingHelpDialog(
                         Text("${info.tipoInformacion}:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         info.descripcion.split(",").forEach { linea ->
                             Text(
-                                text = linea.trim(), // elimina espacios extra
+                                text = linea.trim(),
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -387,22 +385,4 @@ fun BreathingHelpDialog(
         },
         shape = RoundedCornerShape(20.dp)
     )
-}
-
-@Preview
-@Composable
-fun PreviewSesion() {
-    val sampleRespiraciones =
-        RespiracionWithInformacion(
-            respiracion = RespiracionEntity(
-                idRespiracion = 1,
-                nombre = "Respiración 4-7-8",
-                descripcion = "Relajación profunda",
-                inhalarSegundos = 4,
-                mantenerSegundos = 7,
-                exhalarSegundos = 8
-            ),
-            informacionRespiracion = emptyList()
-        )
-
 }
