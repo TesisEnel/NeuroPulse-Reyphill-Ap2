@@ -13,7 +13,7 @@ import io.github.reyx38.neuropulse.presentation.ActividadesDiarias.ActividadesDi
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.MenuSessionRespiracion
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.RespiracionScreen
-import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionScreen
+import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionesRespiracionScreen
 import io.github.reyx38.neuropulse.presentation.experiencia.ReflexionScreen
 import io.github.reyx38.neuropulse.presentation.home.Home
 import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionListScreen
@@ -44,7 +44,6 @@ fun NeuroPulseNavHost(
                     navHostController.navigate(Screen.MenuRespiraciones)
                 }
             )
-
         }
         composable<Screen.HomeActivities> {
             ActividadesDiariasScreen()
@@ -108,27 +107,40 @@ fun NeuroPulseNavHost(
                 },
                 goBack = {
                     navHostController.navigateUp()
+                },
+                onEdit = {
+                    navHostController.navigate(Screen.ReflexionScreen(it))
                 }
             )
         }
-        composable<Screen.MenuRespiraciones>{
-
-
+        composable<Screen.MenuRespiraciones> {
             MenuSessionRespiracion(
-                goBack = {},
+                goBack = {
+                    navHostController.navigate(Screen.Home)
+                },
                 goToSesion = {
                     navHostController.navigate(Screen.RespiracionScreen)
                 }
             )
         }
-        composable<Screen.RespiracionScreen>{
+        composable<Screen.RespiracionScreen> {
             val parentEntry = remember {
                 navHostController.getBackStackEntry(Screen.MenuRespiraciones)
             }
             val viewModel: RespiracionViewModel = hiltViewModel(parentEntry)
             RespiracionScreen(
                 viewModel = viewModel,
-                goBack = {}
+                goBack = {
+                    navHostController.navigate(Screen.Home)
+                }
+            )
+        }
+        composable<Screen.Sesiones> {
+            SesionesRespiracionScreen(
+                onBack = {
+                    navHostController.navigateUp()
+                }
+
             )
         }
 
