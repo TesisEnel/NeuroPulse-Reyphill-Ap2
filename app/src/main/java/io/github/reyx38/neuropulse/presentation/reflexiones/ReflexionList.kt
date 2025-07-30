@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import io.github.reyx38.neuropulse.data.remote.dto.ReflexionDto
+import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,6 +42,7 @@ import java.util.*
 fun ReflexionListScreen(
     viewModel: ReflexionesViewModel = hiltViewModel(),
     goToCreate: () -> Unit,
+    onEdit: (Int?) -> Unit,
     goBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -53,6 +55,7 @@ fun ReflexionListScreen(
         uiState,
         uiState.usuario,
         goToCreate,
+        onEdit,
         goBack
     )
 }
@@ -63,7 +66,9 @@ fun ReflexionBodyScreen(
     uiState: ReflexionesUiState,
     usuario: UserEntity?,
     goToCreate: () -> Unit,
+    onEdit: (Int?) -> Unit,
     goBack: () -> Unit
+
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Alegre", "Normal", "Triste", "Enojado")
@@ -128,7 +133,11 @@ fun ReflexionBodyScreen(
                                     onClick = { goBack() },
                                     modifier = Modifier
                                         .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceVariant.copy(
+                                                alpha = 0.7f
+                                            )
+                                        )
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -172,7 +181,9 @@ fun ReflexionBodyScreen(
                                         .clip(RoundedCornerShape(12.dp))
                                         .background(
                                             if (selectedTab == index)
-                                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                                                MaterialTheme.colorScheme.primaryContainer.copy(
+                                                    alpha = 0.2f
+                                                )
                                             else Color.Transparent
                                         ),
                                     text = {
@@ -253,7 +264,7 @@ fun ReflexionBodyScreen(
                         ReflexionItem(
                             reflexion = reflexion,
                             usuario = usuario,
-                            onEdit = { /* TODO: Implement edit */ },
+                            onEdit = onEdit,
                             onDelete = { /* TODO: Implement delete */ }
                         )
                     }
@@ -267,11 +278,13 @@ fun ReflexionBodyScreen(
 fun ReflexionItem(
     reflexion: ReflexionDto?,
     usuario: UserEntity?,
-    onEdit: () -> Unit,
+    onEdit: (Int?) -> Unit,
     onDelete: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var showOptionsMenu by remember { mutableStateOf(false) }
+    var showDialogDelete by remember { mutableStateOf(false) }
+
 
     val scale by animateFloatAsState(
         targetValue = if (isExpanded) 1.02f else 1f,
@@ -393,7 +406,7 @@ fun ReflexionItem(
                             },
                             onClick = {
                                 showOptionsMenu = false
-                                onEdit()
+                                onEdit(reflexion?.reflexionId)
                             }
                         )
                         DropdownMenuItem(
@@ -414,11 +427,29 @@ fun ReflexionItem(
                             },
                             onClick = {
                                 showOptionsMenu = false
-                                onDelete()
+                                showDialogDelete = true
                             }
                         )
                     }
                 }
+            }
+            if(showDialogDelete) {
+                ConfirmationDialog(
+                    onConfirm = onDelete,
+                    onDismiss = {
+                        showDialogDelete = false
+                    },
+                    iconoSuperior = Icons.Default.Delete,
+                    titulo = "Borrar reflexion",
+                    subTitulo = "Si elimina su reflexion:",
+                    listaCondiciones = listOf(
+                        "• Se eliminara permenentemente",
+                        "• Se eliminara de tu evaluzacion semanal",
+                    ),
+                    textoInferior = "¿Seguro que desea eliminarla?",
+                    textoBotonConfirmacion = "Si, eliminar",
+                    textoBotonDenegar = "Cancelar"
+                )
             }
 
             // Detalles expandibles con animación
