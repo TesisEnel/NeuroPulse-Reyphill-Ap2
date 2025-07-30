@@ -1,50 +1,59 @@
 # 🧠 NeuroPulse
 
-Aplicación móvil de entrenamiento cognitivo y bienestar emocional, desarrollada en Android nativo con Kotlin y Jetpack Compose. Te ayuda a practicar ejercicios de memoria, respiración guiada, llevar un diario emocional y visualizar tu progreso semanal.
+**NeuroPulse** es una aplicación móvil enfocada en la mejora de la memoria cognitiva y el bienestar mental mediante técnicas de respiración, reflexión personal y minijuegos diarios. Está pensada como una herramienta diaria para fomentar el crecimiento personal, la atención plena y el entrenamiento de la mente.
 
 ---
 
-## ✨ Funcionalidades principales
+## 🚀 Características principales
 
-1. **Pantalla de bienvenida / inicio**  
-   Saludo personalizado y accesos rápidos a cada módulo.
+### 🧘 Sesiones de respiración guiadas
+- Técnicas de respiración controlada para reducir el estrés y mejorar la concentración.
+- Animaciones visuales que guían el ritmo de inhalación/exhalación.
+- Historial de sesiones registradas por usuario.
 
-2. **Imagen desaparecida**  
-   Memoriza varias imágenes, una desaparece y debes elegir la correcta.
+### 📝 Módulo de Reflexiones personales
+- Espacio privado para que el usuario escriba sus pensamientos o sentimientos diarios.
+- Funciones de crear, editar y eliminar reflexiones.
 
-3. **Secuencia de colores**  
-   Repite la secuencia que te muestre la app para entrenar tu memoria visual.
+### 📅 Progresión semanal
+- Seguimiento visual del progreso semanal del usuario.
+- Estadísticas basadas en sesiones completadas y minijuegos realizados.
 
-4. **Respiración guiada**  
-   Ciclo animado “Inhala / Sostén / Exhala” para calmar la mente.
+### 🧠 Actividades diarias (minijuegos cognitivos)
+- Mínimo 3 minijuegos diseñados para estimular la memoria y agilidad mental.
+- Actividades rotativas para realizar diariamente.
+- Se registran como parte de la progresión semanal.
 
-5. **Reflexión escrita**  
-   Diario personal: escribe cómo te sentiste hoy y guárdalo localmente.
+### ❤️ Frases favoritas
+- Sección para guardar frases motivacionales (no reflexiones) marcadas por el usuario.
+- Funcionalidad de agregar/eliminar frases favoritas.
 
-6. **Selección de emoji emocional**  
-   Elige un emoji que represente tu estado de ánimo.
-
-7. **Lista de reflexiones anteriores**  
-   Consulta entradas pasadas con fecha, texto y emoji.
-
-8. **Progreso semanal**  
-   Gráficos y métricas de días activos, reflexiones y ejercicios completados.
-
-9. **Persistencia local (Room)**  
-   Todos tus datos se guardan sin conexión.
-
-10. **Navegación fluida**  
-    Mueve‑te entre pantallas sin errores.
+### 👤 Gestión de usuario
+- Integración con autenticación y perfil del usuario.
+- Datos persistentes por cada sesión.
 
 ---
 
-## 🛠️ Tecnologías
+## 🛠️ Tecnologías utilizadas
 
-- **Lenguaje:** Kotlin  
-- **UI:** Jetpack Compose  
-- **DI:** Hilt  
-- **Persistencia:** Room (SQLite)  
-- **Navegación:** Navigation‑Compose  
-- **Animaciones:** API de Compose & Accompanist (opcional)  
+- **Kotlin** con **Jetpack Compose** para la UI moderna y reactiva.
+- **ViewModel + StateFlow** para gestión de estado.
+- **Hilt** para inyección de dependencias.
+- **Room** (opcional/local) y consumo de API remota con **Retrofit**.
+- **Arquitectura limpia**: separación en capas de datos, dominio y presentación.
 
+---
+
+## 🔄 Estado actual del desarrollo
+
+- [x] Módulo de respiraciones: completo y funcional.
+- [x] Historial de sesiones: implementado y conectado al usuario.
+- [x] Reflexiones: CRUD funcional en proceso de ajustes.
+- [x] Progresión semanal: en implementación.
+- [ ] Módulo de minijuegos: en construcción (se requieren al menos 3).
+- [x] Gestión de usuario: activa y funcional.
+- [ ] Módulo de frases favoritas: en proceso.
+- [ ] Notificaciones y recordatorios: pendiente.
+
+---
 
