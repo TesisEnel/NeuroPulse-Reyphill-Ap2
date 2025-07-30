@@ -37,7 +37,7 @@ interface NeuroPulseApi {
     suspend fun getRespiraciones(): List<RespiracionesDto>
 
     //SesionReespiracion
-    @GET("/api/SesionRespiracions/{UsuarioId}")
+    @GET("/api/SesionRespiracions/byId/{UsuarioId}")
     suspend fun getSesionRespiraciones(@Path("UsuarioId") usuarioId:Int) : List<SesionRespiracionDto>
     //SaveSesion
     @POST("/api/SesionRespiracions")
