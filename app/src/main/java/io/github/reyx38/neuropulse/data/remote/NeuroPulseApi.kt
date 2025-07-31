@@ -11,6 +11,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.DELETE
+
 
 interface NeuroPulseApi {
     //Usuarios/Registrar
@@ -31,6 +33,9 @@ interface NeuroPulseApi {
     //Reflexiones/Agregar
     @POST("api/Reflexiones")
     suspend fun saveReflexion(@Body reflexionDto: ReflexionDto): Response<Unit>
+
+    @DELETE("/api/Reflexiones/{id}")
+    suspend fun deleteReflexion(@Path("id")reflexionId: Int): Response<Unit>
 
     //Respiracion
     @GET("/api/Respiracion")

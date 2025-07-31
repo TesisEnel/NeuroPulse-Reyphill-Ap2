@@ -8,6 +8,6 @@ sealed interface ReflexionesEvent {
 
     data object Save: ReflexionesEvent
     data object New: ReflexionesEvent
-    data object Delete: ReflexionesEvent
+    data class Delete(val reflexionid: Int): ReflexionesEvent
 }
 

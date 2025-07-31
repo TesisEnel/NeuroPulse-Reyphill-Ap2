@@ -52,4 +52,17 @@ class ReflexionRepository @Inject constructor(
         }
     }
 
+    suspend fun find(reflexionId : Int) = reflexionDao.find(reflexionId)
+
+    suspend fun deleteReflexion(reflexionId: Int): Resource<Unit> {
+        reflexionDao.deleteReflexion(reflexionId)
+      return  try {
+          reflexionDao.deleteReflexion(reflexionId)
+          remoteDataSource.deleteReflexion(reflexionId)
+            Resource.Success(Unit)
+        }catch (e: Exception){
+            Resource.Error("Huubo un error al eliminar los datos: ${e.localizedMessage}")
+        }
+    }
+
 }
