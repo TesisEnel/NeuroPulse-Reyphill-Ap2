@@ -56,6 +56,9 @@ fun ReflexionListScreen(
         uiState.usuario,
         goToCreate,
         onEdit,
+        onDelete = { reflexionId ->
+            viewModel.deleteReflexion(reflexionId)
+        },
         goBack
     )
 }
@@ -67,6 +70,7 @@ fun ReflexionBodyScreen(
     usuario: UserEntity?,
     goToCreate: () -> Unit,
     onEdit: (Int?) -> Unit,
+    onDelete: (Int?) -> Unit,
     goBack: () -> Unit
 
 ) {
@@ -265,7 +269,7 @@ fun ReflexionBodyScreen(
                             reflexion = reflexion,
                             usuario = usuario,
                             onEdit = onEdit,
-                            onDelete = { /* TODO: Implement delete */ }
+                            onDelete = onDelete
                         )
                     }
                 }
@@ -279,7 +283,7 @@ fun ReflexionItem(
     reflexion: ReflexionDto?,
     usuario: UserEntity?,
     onEdit: (Int?) -> Unit,
-    onDelete: () -> Unit
+    onDelete: (Int?) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var showOptionsMenu by remember { mutableStateOf(false) }
@@ -433,9 +437,12 @@ fun ReflexionItem(
                     }
                 }
             }
-            if(showDialogDelete) {
+            if (showDialogDelete) {
                 ConfirmationDialog(
-                    onConfirm = onDelete,
+                    onConfirm = {
+                        onDelete(reflexion?.reflexionId);
+                        showDialogDelete = false
+                    },
                     onDismiss = {
                         showDialogDelete = false
                     },
@@ -456,14 +463,14 @@ fun ReflexionItem(
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = slideInVertically(
-                    initialOffsetY = { -it/2 },
+                    initialOffsetY = { -it / 2 },
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
                         stiffness = Spring.StiffnessMedium
                     )
                 ) + fadeIn(),
                 exit = slideOutVertically(
-                    targetOffsetY = { -it/2 },
+                    targetOffsetY = { -it / 2 },
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
                         stiffness = Spring.StiffnessMedium

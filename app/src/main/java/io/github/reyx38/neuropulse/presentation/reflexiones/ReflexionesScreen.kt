@@ -41,7 +41,7 @@ fun ReflexionScreen(
     LaunchedEffect(reflexionId) {
         reflexionId.let {
             if (it != 0){
-                viewmodel.getReflexiones(reflexionId)
+                viewmodel.findReflexion(reflexionId)
             }
         }
     }
@@ -63,7 +63,6 @@ fun ReflexionBodyScreen(
 ) {
 
     var showNoteField by remember { mutableStateOf(false) }
-
 
     Column(
         modifier = Modifier

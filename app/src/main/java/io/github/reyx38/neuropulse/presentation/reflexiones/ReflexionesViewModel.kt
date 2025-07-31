@@ -39,7 +39,6 @@ class ReflexionesViewModel @Inject constructor(
         }
     }
 
-
     fun getReflexiones(usuarioId: Int?) {
         viewModelScope.launch {
             if (usuarioId != null && usuarioId > 0 ) {
@@ -71,12 +70,12 @@ class ReflexionesViewModel @Inject constructor(
 
     fun onEvent(event: ReflexionesEvent) {
         when (event) {
-            ReflexionesEvent.Delete -> TODO()
             ReflexionesEvent.New -> TODO()
             ReflexionesEvent.Save -> saveReflexion()
             is ReflexionesEvent.descripcionChange -> onDescripcionChange(event.descripcion)
             is ReflexionesEvent.estadoReflexion -> onEstadoChange(event.estadoReflexion)
             is ReflexionesEvent.usuarioChange -> onUsuarioChange(event.usuarioId)
+            is ReflexionesEvent.Delete -> deleteReflexion(event.reflexionid)
         }
     }
 
@@ -123,6 +122,30 @@ class ReflexionesViewModel @Inject constructor(
                 )
             }
 
+        }
+    }
+
+    fun findReflexion(refelxionId : Int?){
+        viewModelScope.launch {
+            if(refelxionId != null && refelxionId > 0){
+                 val reflexion = reflexionRepository.find(refelxionId)
+                _uiState.update {
+                    it.copy(
+                        reflexionId = reflexion.reflexionId,
+                        estadoReflexion = reflexion.descripcion,
+                        descripcion =  reflexion.estadoReflexion,
+                        usuarioId = reflexion.usuarioId
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteReflexion(reflexionId: Int?){
+        viewModelScope.launch {
+            if (reflexionId != null) {
+                reflexionRepository.deleteReflexion(reflexionId)
+            }
         }
     }
 }
