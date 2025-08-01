@@ -1,3 +1,4 @@
+
 # 🧠 NeuroPulse
 
 **NeuroPulse** es una aplicación móvil enfocada en la mejora de la memoria cognitiva y el bienestar mental mediante técnicas de respiración, reflexión personal y minijuegos diarios. Está pensada como una herramienta diaria para fomentar el crecimiento personal, la atención plena y el entrenamiento de la mente.
