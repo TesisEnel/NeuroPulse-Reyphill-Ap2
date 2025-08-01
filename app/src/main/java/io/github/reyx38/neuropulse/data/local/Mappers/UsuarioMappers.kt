@@ -10,6 +10,6 @@ fun UsuarioDto.toEntity(): UserEntity {
         telefono = telefono,
         email = email,
         token = token,
-        imagenPerfil = null
+        imagenPerfil = imagenUrl
     )
 }

@@ -2,6 +2,8 @@ package io.github.reyx38.neuropulse.data.remote
 
 import io.github.reyx38.neuropulse.data.remote.dto.PeticionLogin
 import io.github.reyx38.neuropulse.data.remote.dto.ReflexionDto
+import io.github.reyx38.neuropulse.data.remote.dto.RespiracionesDto
+import io.github.reyx38.neuropulse.data.remote.dto.SesionRespiracionDto
 import io.github.reyx38.neuropulse.data.remote.dto.UsuarioDto
 import retrofit2.Response
 import retrofit2.http.Body
@@ -9,6 +11,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.DELETE
+
 
 interface NeuroPulseApi {
     //Usuarios/Registrar
@@ -29,4 +33,18 @@ interface NeuroPulseApi {
     //Reflexiones/Agregar
     @POST("api/Reflexiones")
     suspend fun saveReflexion(@Body reflexionDto: ReflexionDto): Response<Unit>
+
+    @DELETE("/api/Reflexiones/{id}")
+    suspend fun deleteReflexion(@Path("id")reflexionId: Int): Response<Unit>
+
+    //Respiracion
+    @GET("/api/Respiracion")
+    suspend fun getRespiraciones(): List<RespiracionesDto>
+
+    //SesionReespiracion
+    @GET("/api/SesionRespiracions/byId/{UsuarioId}")
+    suspend fun getSesionRespiraciones(@Path("UsuarioId") usuarioId:Int) : List<SesionRespiracionDto>
+    //SaveSesion
+    @POST("/api/SesionRespiracions")
+    suspend fun saveSesionRespiracion(@Body sesionDto: SesionRespiracionDto): Response<Unit>
 }

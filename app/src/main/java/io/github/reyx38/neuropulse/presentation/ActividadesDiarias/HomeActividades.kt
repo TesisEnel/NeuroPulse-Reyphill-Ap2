@@ -42,28 +42,28 @@ fun ActividadesDiariasScreen(
             id = "desaparicion",
             titulo = "Desaparece la imagen",
             descripcion = "Pon a prueba tu memoria visual",
-            imagen = R.drawable.img_3,
+            imagen = R.drawable.img,
             completado = false
         ),
         MiniJuego(
             id = "secuencia_colores",
             titulo = "Secuencia de colores",
             descripcion = "Recuerda y repite la secuencia",
-            imagen = R.drawable.img_4,
+            imagen = R.drawable.img,
             completado = false
         ),
         MiniJuego(
             id = "ordenar_numeros",
             titulo = "Ordena los números",
             descripcion = "Ejercita tu lógica numérica",
-            imagen = R.drawable.img_5,
+            imagen = R.drawable.img,
             completado = true
         ),
         MiniJuego(
             id = "contar_pulsos",
             titulo = "Cuenta los pulsos",
             descripcion = "Presta atención y cuenta bien",
-            imagen = R.drawable.img_6,
+            imagen = R.drawable.img,
             completado = false
         )
     )

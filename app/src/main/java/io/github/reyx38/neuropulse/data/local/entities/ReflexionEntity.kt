@@ -11,6 +11,6 @@ data class ReflexionEntity(
     val usuarioId: Int,
     val estadoReflexion: String,
     val descripcion: String,
-    val fechaCreacion: Date? = Date()
+    val fechaCreacion: String?
 )
 
