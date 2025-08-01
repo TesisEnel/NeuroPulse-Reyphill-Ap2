@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,7 +18,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,12 +26,10 @@ import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.Opcione
 import kotlin.io.encoding.ExperimentalEncodingApi
 import android.util.Base64
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.sp
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ConfiguracionUsuarios
-import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.FavoritasFrasesScreen
 
 
 @Composable
@@ -63,7 +59,6 @@ fun ProfileScreen(
                 onBack = { vistaActual.value = "main" })
         }
 
-        "favorite" -> FavoritasFrasesScreen(onBack = { vistaActual.value = "main" })
         "settings" -> ConfiguracionUsuarios(onBack = { vistaActual.value = "main" })
         "logout" -> {
             MainProfileScreen(
@@ -156,13 +151,6 @@ fun MainProfileScreen(
                 onClick = { onSectionSelect("profile") }
             )
 
-            ProfileMenuItem(
-                icon = Icons.Default.Favorite,
-                title = "Frases favoritas",
-                backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
-                iconColor = MaterialTheme.colorScheme.secondary,
-                onClick = { onSectionSelect("favorite") }
-            )
             ProfileMenuItem(
                 icon = Icons.Default.Settings,
                 title = "Configuracion",
