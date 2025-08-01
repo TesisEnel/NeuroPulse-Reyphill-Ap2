@@ -33,7 +33,6 @@ import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioViewModel
 import io.github.reyx38.neuropulse.ui.theme.*
-
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +46,7 @@ fun Home(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var isVisible by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         viewModel.getUsuario()
@@ -71,6 +71,7 @@ fun Home(
                     )
                 )
         ) {
+
             AnimatedVisibility(
                 visible = isVisible,
                 enter = fadeIn(tween(800)) + slideInVertically(
@@ -94,14 +95,12 @@ fun Home(
                         color = onPrimaryContainerLight,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 4.dp)
+                            .padding(start = 10.dp)
                     )
 
                     ActivityCard(
                         icon = R.drawable.brain,
                         title = "Actividades Diarias",
-                        subtitle = "3 de 4 completadas",
-                        progress = 0.75f,
                         progressColor = tertiaryContainerLight,
                         goActivity = goToActividades
                     )
@@ -109,8 +108,6 @@ fun Home(
                     ActivityCard(
                         icon = R.drawable.img_1,
                         title = "Ejercicio de Respiración",
-                        subtitle = "Incompleto",
-                        progress = 0.5f,
                         progressColor = secondaryContainerLight,
                         goActivity = goToRespiracion
                     )
@@ -118,8 +115,6 @@ fun Home(
                     ActivityCard(
                         icon = R.drawable.img,
                         title = "Reflexión Escrita",
-                        subtitle = "2 notas escritas",
-                        progress = null,
                         progressColor = primaryLight,
                         goActivity = goToReflexiones
                     )
@@ -230,8 +225,6 @@ private fun GreetingCard(nombre: String?) {
 private fun ActivityCard(
     icon: Int,
     title: String,
-    subtitle: String,
-    progress: Float?,
     progressColor: Color,
     goActivity: () -> Unit
 ) {
@@ -299,24 +292,6 @@ private fun ActivityCard(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = onSurfaceLight
                 )
-
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = outlineLight
-                )
-
-                progress?.let {
-                    LinearProgressIndicator(
-                        progress = it,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp)),
-                        color = progressColor,
-                        trackColor = progressColor.copy(alpha = 0.2f)
-                    )
-                }
             }
         }
 

@@ -15,5 +15,4 @@ data class ReflexionesUiState(
     val reflexiones: List<ReflexionDto?> = emptyList(),
     val error: String? = null,
     val isLoading: Boolean = false
-
 )
