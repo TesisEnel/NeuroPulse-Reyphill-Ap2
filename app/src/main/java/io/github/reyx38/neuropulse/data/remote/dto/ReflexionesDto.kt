@@ -1,6 +1,5 @@
 package io.github.reyx38.neuropulse.data.remote.dto
 
-
 data class ReflexionDto(
     val reflexionId: Int,
     val usuarioId: Int,
