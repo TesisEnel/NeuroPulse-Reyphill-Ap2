@@ -9,7 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import io.github.reyx38.neuropulse.presentation.ActividadesDiarias.ActividadesDiariasScreen
+import com.tuapp.ui.screens.EjerciciosCognitivosScreen
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.MenuSessionRespiracion
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.RespiracionScreen
@@ -46,7 +46,7 @@ fun NeuroPulseNavHost(
             )
         }
         composable<Screen.HomeActivities> {
-            ActividadesDiariasScreen()
+            EjerciciosCognitivosScreen()
         }
         composable<Screen.Login> {
             LoginScreen(

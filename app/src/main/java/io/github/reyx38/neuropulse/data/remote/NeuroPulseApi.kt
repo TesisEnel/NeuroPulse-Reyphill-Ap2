@@ -1,5 +1,6 @@
 package io.github.reyx38.neuropulse.data.remote
 
+import io.github.reyx38.neuropulse.data.remote.dto.EjerciciosCognitivosDto
 import io.github.reyx38.neuropulse.data.remote.dto.PeticionLogin
 import io.github.reyx38.neuropulse.data.remote.dto.ReflexionDto
 import io.github.reyx38.neuropulse.data.remote.dto.RespiracionesDto
@@ -47,4 +48,7 @@ interface NeuroPulseApi {
     //SaveSesion
     @POST("/api/SesionRespiracions")
     suspend fun saveSesionRespiracion(@Body sesionDto: SesionRespiracionDto): Response<Unit>
+
+    @GET("/api/EjerciciosCognitivos")
+    suspend fun getEjerciosCognitivos() : List<EjerciciosCognitivosDto>
 }
