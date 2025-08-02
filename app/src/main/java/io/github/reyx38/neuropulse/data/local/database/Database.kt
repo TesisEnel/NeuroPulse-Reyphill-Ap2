@@ -4,10 +4,12 @@ import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import io.github.reyx38.neuropulse.data.local.dao.EjercicioCognitivoDao
 import io.github.reyx38.neuropulse.data.local.dao.ReflexionDao
 import io.github.reyx38.neuropulse.data.local.dao.RespiracionDao
 import io.github.reyx38.neuropulse.data.local.dao.SesionRespiracionDao
 import io.github.reyx38.neuropulse.data.local.dao.UsuarioDao
+import io.github.reyx38.neuropulse.data.local.entities.EjerciciosCognitivoEntity
 import io.github.reyx38.neuropulse.data.local.entities.InformacionRespiracionEntity
 import io.github.reyx38.neuropulse.data.local.entities.ReflexionEntity
 import io.github.reyx38.neuropulse.data.local.entities.RespiracionEntity
@@ -19,9 +21,10 @@ import io.github.reyx38.neuropulse.data.local.entities.SesionRespiracionEntity
         ReflexionEntity::class,
         RespiracionEntity::class,
         InformacionRespiracionEntity::class,
-        SesionRespiracionEntity::class
+        SesionRespiracionEntity::class,
+        EjerciciosCognitivoEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 
@@ -31,4 +34,5 @@ abstract class NeuroPulseDb : RoomDatabase() {
     abstract fun reflexionDao(): ReflexionDao
     abstract fun respiracionDao(): RespiracionDao
     abstract fun sesionRespiracionDao(): SesionRespiracionDao
+    abstract fun ejercicioCognitivoDao(): EjercicioCognitivoDao
 }
