@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos
+package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.CatalogoEjercicios
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

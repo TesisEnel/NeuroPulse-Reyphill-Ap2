@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos
+package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.CatalogoEjercicios
 
 import io.github.reyx38.neuropulse.data.local.entities.EjerciciosCognitivoEntity
 

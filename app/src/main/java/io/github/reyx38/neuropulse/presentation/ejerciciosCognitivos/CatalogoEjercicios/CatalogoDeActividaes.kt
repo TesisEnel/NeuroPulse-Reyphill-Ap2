@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
-
-package com.tuapp.ui.screens
+package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.CatalogoEjercicios
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseOutCubic
@@ -35,14 +34,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.EjerciciosCognitivoEntity
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.EjerciciosViewModel
-
 
 @Composable
 fun EjerciciosCognitivosScreen(
     viewModel: EjerciciosViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
-    onIniciarActividad: (EjerciciosCognitivoEntity) -> Unit = {}
+    onIniciarActividad: (Int?) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val colorScheme = MaterialTheme.colorScheme
@@ -65,7 +62,7 @@ fun EjerciciosCognitivosScreen(
                         title = {
                             Column {
                                 Text(
-                                    text = "Mis sesiones de respiracion",
+                                    text = "Ejercicios cognitivos",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold
@@ -81,7 +78,7 @@ fun EjerciciosCognitivosScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Atrás",
+                                    contentDescription = "Volver",
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -113,7 +110,7 @@ fun EjerciciosCognitivosScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Entrena tu mente con unos de nuestros ejercicos disponible",
+                    text = "Entrena tu mente con unos de nuestros ejercicios disponible",
                     fontSize = 16.sp,
                     color = colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -170,7 +167,6 @@ fun EjerciciosCognitivosScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Grid de ejercicios - Solo los que están activos
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -197,7 +193,7 @@ fun EjerciciosCognitivosScreen(
                 ejercicio = selectedEjercicio!!,
                 onDismiss = { showDialog = false },
                 onIniciarActividad = {
-                    onIniciarActividad(selectedEjercicio!!)
+                    onIniciarActividad(selectedEjercicio!!.ejercicosCognitivosId)
                     showDialog = false
                 },
                 colorScheme = colorScheme
@@ -342,7 +338,6 @@ fun EjercicioDetailDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ID del ejercicio
                 Text(
                     text = "Ejercicio #${ejercicio.ejercicosCognitivosId}",
                     fontSize = 14.sp,
@@ -352,7 +347,6 @@ fun EjercicioDetailDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Descripción completa
                 Text(
                     text = ejercicio.descripcion,
                     fontSize = 16.sp,
@@ -363,7 +357,6 @@ fun EjercicioDetailDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Estado del ejercicio
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
