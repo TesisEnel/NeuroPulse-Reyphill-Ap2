@@ -32,4 +32,21 @@ sealed class Screen {
 
     @Serializable
     data object Sesiones : Screen()
+
+    @Serializable
+    data class Ejercicios(val ejercicioCognitivoId: Int) : Screen()
+
+    @Serializable
+    data class Desvanecimiento(val ejercicioCognitivoId: Int) : Screen()
+
+    @Serializable
+    data class SecuenciaMental(val ejercicioCognitivoId: Int) : Screen()
+
+    @Serializable
+    data class ConflictoColores(val ejercicioCognitivoId: Int) : Screen()
+
+    @Serializable
+    data class LogicaSombra (val ejercicioCognitivoId: Int) : Screen()
+
+
 }

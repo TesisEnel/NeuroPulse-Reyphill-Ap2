@@ -40,7 +40,7 @@ fun NeuroDrawerScaffold(
     val drawerItems = listOf(
         DrawerItem("progress", "Progresión Semanal", Icons.Default.ShowChart),
         DrawerItem("reflections", "Reflexiones", Icons.Default.EditNote, Screen.ReflexionListScreen),
-        DrawerItem("activities", "Actividades Diarias", Icons.Default.Games),
+        DrawerItem("activities", "Historial deActividades", Icons.Default.Games,Screen.Ejercicios(1)),
         DrawerItem("Sesiones", "Historial de sesiones", Icons.Default.History, Screen.Sesiones )
     )
 
