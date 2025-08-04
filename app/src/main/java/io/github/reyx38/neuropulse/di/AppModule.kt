@@ -32,4 +32,6 @@ object AppModule {
     fun provideSesionDao(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.sesionRespiracionDao()
     @Provides
     fun providesEjercicioCognitivo(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.ejercicioCognitivoDao()
+    @Provides
+    fun providesSesionJuegos(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.sesionJuegoDao()
 }
