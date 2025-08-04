@@ -95,7 +95,7 @@ fun SecuenciaMentalScreen(
                         },
                         navigationIcon = {
                             IconButton(
-                                onClick = onNavigateBack,
+                                onClick = { handleExit() },
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
@@ -610,7 +610,6 @@ fun GameCompletedScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Botones
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)

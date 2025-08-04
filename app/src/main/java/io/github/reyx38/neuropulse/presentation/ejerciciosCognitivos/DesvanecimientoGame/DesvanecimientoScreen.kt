@@ -71,22 +71,17 @@ fun DesvanecimientoScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val colorScheme = MaterialTheme.colorScheme
 
-    // Estado para controlar el diálogo de confirmación de salida
     var showExitDialog by remember { mutableStateOf(false) }
 
-    // Función para manejar la salida
     fun handleExit() {
         if (uiState.isStarted && !uiState.juegoTerminado) {
-            // Si el juego está activo, mostrar diálogo de confirmación
             showExitDialog = true
         } else {
-            // Si no está jugando o ya terminó, salir directamente
             viewModel.resetGame()
             onNavigateBack()
         }
     }
 
-    // Interceptar el botón de retroceso del sistema
     BackHandler {
         handleExit()
     }
@@ -171,7 +166,6 @@ fun DesvanecimientoScreen(
                 }
 
                 else -> {
-                    // Juego activo
                     GameContent(
                         gameState = uiState,
                         onPositionClick = { viewModel.selectPosition(it) },
@@ -183,12 +177,10 @@ fun DesvanecimientoScreen(
         }
     }
 
-    // Diálogo de confirmación para salir del juego
     if (showExitDialog) {
         ConfirmationDialog(
             onConfirm = {
                 showExitDialog = false
-                // Marcar el juego como incompleto (juegoTerminado = false)
                 viewModel.onEvent(DesvanecimientoEvent.JuegoIncompleto)
                 viewModel.resetGame()
                 onNavigateBack()
@@ -347,7 +339,6 @@ private fun GameContent(
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    // Cuadrícula 4x4
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
         verticalArrangement = Arrangement.spacedBy(8.dp),
