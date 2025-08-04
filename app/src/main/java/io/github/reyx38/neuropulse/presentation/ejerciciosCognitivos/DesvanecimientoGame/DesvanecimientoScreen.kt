@@ -56,10 +56,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
-import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,7 +162,6 @@ fun DesvanecimientoScreen(
                         colorScheme = colorScheme
                     )
                 }
-
                 else -> {
                     GameContent(
                         gameState = uiState,
