@@ -4,6 +4,7 @@ import io.github.reyx38.neuropulse.data.remote.dto.EjerciciosCognitivosDto
 import io.github.reyx38.neuropulse.data.remote.dto.PeticionLogin
 import io.github.reyx38.neuropulse.data.remote.dto.ReflexionDto
 import io.github.reyx38.neuropulse.data.remote.dto.RespiracionesDto
+import io.github.reyx38.neuropulse.data.remote.dto.SesionJuegosDto
 import io.github.reyx38.neuropulse.data.remote.dto.SesionRespiracionDto
 import io.github.reyx38.neuropulse.data.remote.dto.UsuarioDto
 import retrofit2.Response
@@ -49,6 +50,13 @@ interface NeuroPulseApi {
     @POST("/api/SesionRespiracions")
     suspend fun saveSesionRespiracion(@Body sesionDto: SesionRespiracionDto): Response<Unit>
 
+    //EjerciciosCognitivos
     @GET("/api/EjerciciosCognitivos")
     suspend fun getEjerciosCognitivos() : List<EjerciciosCognitivosDto>
+
+    //Sesiones de ejercicios
+    @GET("/api/SesionJuegos/{usuarioId}")
+    suspend fun getSesionesJuegosPorUsuario(@Path("usuarioId") usuarioId: Int) : List<SesionJuegosDto>
+    @POST("/api/SesionJuegos")
+    suspend fun saveSesionJuego(@Body sesionJuegosDto: SesionJuegosDto): Response<Unit>
 }

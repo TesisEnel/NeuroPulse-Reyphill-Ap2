@@ -22,10 +22,10 @@ class SesionJuegosRepository@Inject constructor(
             .map { it.toDto() }
         try {
             val remote = remoteDataSource.getSesionesJuegos(usuarioId)
-            remote.forEach { sesionJuegoDao.saveSesionJuego(it.toEntity()) }
 
             if (!remote.isEmpty())
                 sesionJuegoDao.deleteAllSesiones(usuarioId)
+            remote.forEach { sesionJuegoDao.saveSesionJuego(it.toEntity()) }
 
             localList = sesionJuegoDao.getAllSesionJuegos(usuarioId)
                 .map { it.toDto() }
