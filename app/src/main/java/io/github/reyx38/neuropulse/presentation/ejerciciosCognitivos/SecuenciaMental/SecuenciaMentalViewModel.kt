@@ -3,24 +3,126 @@ package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.SecuenciaM
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.reyx38.neuropulse.data.remote.Resource
+import io.github.reyx38.neuropulse.data.repository.AuthRepository
+import io.github.reyx38.neuropulse.data.repository.SesionJuegosRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SecuenciaMentalViewModel@Inject constructor() : ViewModel() {
-    private val _state = MutableStateFlow(SecuenciaMentalState())
-    val state: StateFlow<SecuenciaMentalState> = _state.asStateFlow()
+class SecuenciaMentalViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+    private val sesionJuegosRepository: SesionJuegosRepository
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(SecuenciaMentalUiState())
+    val uiState: StateFlow<SecuenciaMentalUiState> = _uiState.asStateFlow()
 
     init {
         iniciarNuevaRonda()
+        getUsuario()
     }
 
+   fun onEvent( event: SecuenciaMentalEvent){
+        when(event) {
+            is SecuenciaMentalEvent.CompletadoChange -> onCompletadoChange(event.estado)
+            is SecuenciaMentalEvent.EjercicioCognitivoChange -> onEjercicioCognitivoChange(event.ejercicio)
+            SecuenciaMentalEvent.JuegoIncompleto -> saveIncompleto()
+            SecuenciaMentalEvent.New -> reiniciarJuego()
+            is SecuenciaMentalEvent.PuntacionChange -> onPuntacionChange(event.puntacion)
+            SecuenciaMentalEvent.Save -> save()
+            is SecuenciaMentalEvent.UsuarioChange -> onUsuarioChange(event.usuarioId)
+        }
+   }
+
+    private fun saveIncompleto() {
+        penalizacionJuego()
+        save()
+    }
+    private fun penalizacionJuego(){
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    juegoTerminado = false,
+                    puntuacionTotal = -400,
+                )
+            }
+        }
+    }
+
+    fun getUsuario() {
+        viewModelScope.launch {
+            val user = authRepository.getUsuario()
+            _uiState.update {
+                it.copy(
+                    usuarioId = user?.usuarioId,
+                )
+            }
+        }
+    }
+
+    private fun save() {
+        viewModelScope.launch {
+            val result = sesionJuegosRepository.saveSesionJuegos(_uiState.value.toDto())
+            _uiState.update {
+                it.copy(
+                    error = when (result) {
+                        is Resource.Success -> "la sesion se ha guardada"
+                        is Resource.Error -> result.message ?: "Error al guardar la sesion"
+                        else -> null
+                    }
+                )
+            }
+
+        }
+    }
+    private fun onCompletadoChange(estado: Boolean) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    juegoTerminado = estado
+                )
+            }
+        }
+    }
+
+    private fun onEjercicioCognitivoChange(ejercicioId: Int) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    ejerciciosCognitivosId = ejercicioId
+                )
+            }
+        }
+    }
+
+    private fun onPuntacionChange(puntacionTotal: Int) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    puntuacionTotal = puntacionTotal
+                )
+            }
+        }
+    }
+
+    private fun onUsuarioChange(usuarioId: Int) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    usuarioId = usuarioId
+                )
+            }
+        }
+    }
+
+
     private fun iniciarNuevaRonda() {
-        val cantidadNumeros = when (_state.value.rondaActual) {
+        val cantidadNumeros = when (_uiState.value.rondaActual) {
             1 -> 5
             2 -> 7
             3 -> 9
@@ -30,7 +132,7 @@ class SecuenciaMentalViewModel@Inject constructor() : ViewModel() {
         val numerosOrdenados = (1..cantidadNumeros).toList()
         val numerosDesordenados = numerosOrdenados.shuffled()
 
-        _state.value = _state.value.copy(
+        _uiState.value = _uiState.value.copy(
             numerosDesordenados = numerosDesordenados,
             numerosOrdenados = numerosOrdenados,
             respuestaUsuario = emptyList(),
@@ -43,45 +145,45 @@ class SecuenciaMentalViewModel@Inject constructor() : ViewModel() {
 
     private fun iniciarTemporizador() {
         viewModelScope.launch {
-            while (_state.value.tiempoRestante > 0 && !_state.value.mostrandoResultado) {
+            while (_uiState.value.tiempoRestante > 0 && !_uiState.value.mostrandoResultado) {
                 delay(1000)
-                _state.value = _state.value.copy(
-                    tiempoRestante = _state.value.tiempoRestante - 1
+                _uiState.value = _uiState.value.copy(
+                    tiempoRestante = _uiState.value.tiempoRestante - 1
                 )
             }
-            if (!_state.value.mostrandoResultado) {
+            if (!_uiState.value.mostrandoResultado) {
                 verificarRespuesta()
             }
         }
     }
 
     fun agregarNumero(numero: Int) {
-        if (_state.value.mostrandoResultado || _state.value.juegoTerminado) return
+        if (_uiState.value.mostrandoResultado || _uiState.value.juegoTerminado) return
 
-        val nuevaRespuesta = _state.value.respuestaUsuario + numero
-        _state.value = _state.value.copy(respuestaUsuario = nuevaRespuesta)
+        val nuevaRespuesta = _uiState.value.respuestaUsuario + numero
+        _uiState.value = _uiState.value.copy(respuestaUsuario = nuevaRespuesta)
 
-        if (nuevaRespuesta.size == _state.value.numerosOrdenados.size) {
+        if (nuevaRespuesta.size == _uiState.value.numerosOrdenados.size) {
             verificarRespuesta()
         }
     }
 
     fun quitarUltimoNumero() {
-        if (_state.value.respuestaUsuario.isNotEmpty() && !_state.value.mostrandoResultado) {
-            _state.value = _state.value.copy(
-                respuestaUsuario = _state.value.respuestaUsuario.dropLast(1)
+        if (_uiState.value.respuestaUsuario.isNotEmpty() && !_uiState.value.mostrandoResultado) {
+            _uiState.value = _uiState.value.copy(
+                respuestaUsuario = _uiState.value.respuestaUsuario.dropLast(1)
             )
         }
     }
 
     private fun verificarRespuesta() {
-        val esCorrecta = _state.value.respuestaUsuario == _state.value.numerosOrdenados
+        val esCorrecta = _uiState.value.respuestaUsuario == _uiState.value.numerosOrdenados
         val puntos = if (esCorrecta) 100 else 25
 
-        _state.value = _state.value.copy(
+        _uiState.value = _uiState.value.copy(
             mostrandoResultado = true,
             esRespuestaCorrecta = esCorrecta,
-            puntuacionTotal = _state.value.puntuacionTotal + puntos
+            puntuacionTotal = _uiState.value.puntuacionTotal + puntos
         )
 
         viewModelScope.launch {
@@ -91,20 +193,20 @@ class SecuenciaMentalViewModel@Inject constructor() : ViewModel() {
     }
 
     private fun siguienteRonda() {
-        if (_state.value.rondaActual < 3) {
-            _state.value = _state.value.copy(
-                rondaActual = _state.value.rondaActual + 1
+        if (_uiState.value.rondaActual < 3) {
+            _uiState.value = _uiState.value.copy(
+                rondaActual = _uiState.value.rondaActual + 1
             )
             iniciarNuevaRonda()
         } else {
-            _state.value = _state.value.copy(
+            _uiState.value = _uiState.value.copy(
                 juegoTerminado = true
             )
         }
     }
 
     fun reiniciarJuego() {
-        _state.value = SecuenciaMentalState()
+        _uiState.value = SecuenciaMentalUiState()
         iniciarNuevaRonda()
     }
 }
