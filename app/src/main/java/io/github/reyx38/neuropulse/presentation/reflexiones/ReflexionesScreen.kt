@@ -4,7 +4,9 @@ package io.github.reyx38.neuropulse.presentation.experiencia
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -39,7 +41,7 @@ fun ReflexionScreen(
     LaunchedEffect(reflexionId) {
         reflexionId.let {
             if (it != 0){
-                viewmodel.getReflexiones(reflexionId)
+                viewmodel.findReflexion(reflexionId)
             }
         }
     }
@@ -61,7 +63,6 @@ fun ReflexionBodyScreen(
 ) {
 
     var showNoteField by remember { mutableStateOf(false) }
-
 
     Column(
         modifier = Modifier
@@ -184,48 +185,105 @@ fun NoteTextField(
     error: String?,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(horizontal = 32.dp)) {
+    Column(modifier = modifier) {
         error?.let {
             Text(
                 text = it,
                 color = if (it.contains("correctamente", ignoreCase = true)) Color(0xFF4CAF50) else Color.Red,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
             )
         }
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = {
-                Text(
-                    text = "Agrega un comentario sobre tu experiencia...",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Tu reflexión",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Outlined.Visibility,
+                            contentDescription = "Cerrar",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    placeholder = {
+                        Text(
+                            text = "Cuéntanos cómo te sientes hoy, qué experiencias tuviste, qué te hizo sentir así...",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            fontSize = 14.sp
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    maxLines = 6,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                    )
                 )
-            },
-            leadingIcon = {
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        Icons.Outlined.Visibility,
-                        contentDescription = "Hide note",
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
-            },
-            trailingIcon = {
-                IconButton(onClick = onSubmit) {
-                    Icon(
-                        Icons.Default.Send,
-                        contentDescription = "Submit",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            },
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Botón de guardar mejorado
+        Button(
+            onClick = onSubmit,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            shape = RoundedCornerShape(12.dp),
-            maxLines = 4
-        )
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 2.dp
+            )
+        ) {
+            Icon(
+                Icons.Default.Send,
+                contentDescription = "Guardar",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Guardar reflexión",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
@@ -326,4 +384,3 @@ fun CustomEmojiSlider(
         }
     }
 }
-

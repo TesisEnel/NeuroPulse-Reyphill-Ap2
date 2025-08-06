@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.reyx38.neuropulse"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -45,6 +45,8 @@ android {
 }
 
 dependencies {
+    //imagenes
+    implementation("io.coil-kt:coil-compose:2.5.0")
     //navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)

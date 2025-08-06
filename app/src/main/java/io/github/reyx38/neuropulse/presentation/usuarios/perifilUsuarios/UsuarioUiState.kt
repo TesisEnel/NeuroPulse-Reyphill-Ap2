@@ -10,6 +10,7 @@ data class UsuarioUiState (
     val errorEmail: String? = null,
     val telefono:  String? = null,
     val errorTelefono: String? = null,
+    val imagen: String? = null,
     val isUpdating: Boolean = false,
     val updateMessage: String? = null,
     val isError: Boolean = false,

@@ -1,5 +1,10 @@
 package io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario
 
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,6 +17,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,20 +27,68 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioEvent
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioUiState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import android.util.Base64
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.content.ContextCompat
+import coil.compose.AsyncImage
+import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun ProfileDetailScreen(
     uiState: UsuarioUiState,
     onEvent: (UsuarioEvent) -> Unit,
     onBack: () -> Unit
 ) {
+    if (!uiState.usuario?.imagenPerfil.isNullOrEmpty() && uiState.imagen.isNullOrEmpty()) {
+        onEvent(
+            UsuarioEvent.ImagenChange(uiState.usuario.imagenPerfil)
+        )
+    }
+
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                selectedImageUri = it
+                val imageBytes = context.contentResolver.openInputStream(uri)?.readBytes()
+                imageBytes?.let { bytes ->
+                    val base64 = Base64.encodeToString(bytes, Base64.DEFAULT)
+                    onEvent(
+                        UsuarioEvent.ImagenChange(base64)
+                    )
+                }
+            }
+        }
+    )
+
     val gradient = Brush.horizontalGradient(
         listOf(
             MaterialTheme.colorScheme.primary,
             MaterialTheme.colorScheme.secondary
         )
     )
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            launcher.launch("image/*")
+        } else {
+            Toast.makeText(context, "Permiso denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -50,10 +104,12 @@ fun ProfileDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBack) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver",
@@ -71,7 +127,6 @@ fun ProfileDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Imagen
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -85,18 +140,79 @@ fun ProfileDetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
+                            .clickable(onClick = {
+                                val permission =
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        android.Manifest.permission.READ_MEDIA_IMAGES
+                                    } else {
+                                        android.Manifest.permission.READ_EXTERNAL_STORAGE
+                                    }
+
+                                when {
+                                    ContextCompat.checkSelfPermission(
+                                        context,
+                                        permission
+                                    ) == PackageManager.PERMISSION_GRANTED -> {
+                                        launcher.launch("image/*")
+                                    }
+
+                                    else -> {
+                                        requestPermissionLauncher.launch(permission)
+                                    }
+                                }
+                            })
                             .background(MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.size(60.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        if (uiState.imagen == null) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Editar",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        } else {
+                            if (!uiState.imagen.isNullOrEmpty()) {
+                                val imageBytes =
+                                    Base64.decode(uiState.imagen, Base64.DEFAULT)
+                                val bitmap = remember(uiState.imagen) {
+                                    try {
+                                        android.graphics.BitmapFactory.decodeByteArray(
+                                            imageBytes,
+                                            0,
+                                            imageBytes.size
+                                        )
+                                            ?.asImageBitmap()
+                                    } catch (e: Exception) {
+                                        null
+                                    }
+                                }
+
+                                bitmap?.let {
+                                    Image(
+                                        bitmap = it,
+                                        contentDescription = "perfil",
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape)
+                                    )
+                                }
+                            } else {
+                                selectedImageUri?.let {
+                                    AsyncImage(
+                                        model = it,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
+                // Edit icon
                 Card(
                     modifier = Modifier
                         .size(32.dp)
@@ -104,7 +220,10 @@ fun ProfileDetailScreen(
                     shape = CircleShape,
                     colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primary)
                 ) {
-                    Box(Modifier.fillMaxSize(), Alignment.Center) {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        Alignment.Center
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Editar",
@@ -117,10 +236,23 @@ fun ProfileDetailScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            ProfileInputField("Nombre de usuario", uiState.nombre, { onEvent(UsuarioEvent.NombreChange(it)) })
+            // Input Fields
+            ProfileInputField(
+                "Nombre de usuario",
+                uiState.nombre,
+                { onEvent(UsuarioEvent.NombreChange(it)) }
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
-            ProfileInputField("Número de teléfono", uiState.telefono, { onEvent(UsuarioEvent.TelefonoChange(it)) })
+
+            ProfileInputField(
+                "Número de teléfono",
+                uiState.telefono,
+                { onEvent(UsuarioEvent.TelefonoChange(it)) }
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             ProfileInputField(
                 label = "Correo Electrónico",
                 value = uiState.email,
@@ -133,7 +265,7 @@ fun ProfileDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
+            // Loading indicator
             AnimatedVisibility(
                 visible = uiState.isUpdating,
                 enter = slideInVertically { -it } + fadeIn(),
@@ -161,6 +293,7 @@ fun ProfileDetailScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Update button
             Button(
                 onClick = { onEvent(UsuarioEvent.Save) },
                 modifier = Modifier
@@ -195,15 +328,16 @@ fun ProfileDetailScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Message card
             AnimatedVisibility(
                 visible = !uiState.updateMessage.isNullOrEmpty(),
                 enter = fadeIn() + slideInVertically { it },
                 exit = fadeOut() + slideOutVertically { it }
             ) {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         if (uiState.isError)
                             MaterialTheme.colorScheme.errorContainer
@@ -225,7 +359,8 @@ fun ProfileDetailScreen(
                             color = if (uiState.isError)
                                 MaterialTheme.colorScheme.onErrorContainer
                             else
-                                MaterialTheme.colorScheme.onPrimaryContainer
+                                MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.weight(1f)
                         )
                         TextButton(onClick = { onEvent(UsuarioEvent.DismissMessage) }) {
                             Text("Cerrar")

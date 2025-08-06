@@ -140,96 +140,103 @@ fun RegisterBodyScreen(
             }
         }
 
-        OutlinedTextField(
-            value = uiState.nombre,
-            onValueChange = { onEvent(RegisterUiEvent.NombreChange(it)) },
-            label = { Text("Nombre") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading,
-            isError = uiState.errorNombre.isNotEmpty(),
-            supportingText = if (uiState.errorNombre.isNotEmpty()) {
-                { Text(text = uiState.errorNombre, color = MaterialTheme.colorScheme.error) }
-            } else null
-        )
+        if(!uiState.isLoading) {
+            OutlinedTextField(
+                value = uiState.nombre,
+                onValueChange = { onEvent(RegisterUiEvent.NombreChange(it)) },
+                label = { Text("Nombre") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                isError = uiState.errorNombre.isNotEmpty(),
+                supportingText = if (uiState.errorNombre.isNotEmpty()) {
+                    { Text(text = uiState.errorNombre, color = MaterialTheme.colorScheme.error) }
+                } else null
+            )
 
-        OutlinedTextField(
-            value = uiState.telefono,
-            onValueChange = { onEvent(RegisterUiEvent.TelefonoChange(it)) },
-            label = { Text("Telefono") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading,
-            isError = uiState.errorTelefono.isNotEmpty(),
-            supportingText = if (uiState.errorTelefono.isNotEmpty()) {
-                { Text(text = uiState.errorTelefono, color = MaterialTheme.colorScheme.error) }
-            } else null
-        )
+            OutlinedTextField(
+                value = uiState.telefono,
+                onValueChange = { onEvent(RegisterUiEvent.TelefonoChange(it)) },
+                label = { Text("Telefono") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                isError = uiState.errorTelefono.isNotEmpty(),
+                supportingText = if (uiState.errorTelefono.isNotEmpty()) {
+                    { Text(text = uiState.errorTelefono, color = MaterialTheme.colorScheme.error) }
+                } else null
+            )
 
-        OutlinedTextField(
-            value = uiState.email,
-            onValueChange = { onEvent(RegisterUiEvent.EmailChange(it)) },
-            label = { Text("Correo electronico") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading,
-            isError = uiState.errorEmail.isNotEmpty(),
-            supportingText = if (uiState.errorEmail.isNotEmpty()) {
-                { Text(text = uiState.errorEmail, color = MaterialTheme.colorScheme.error) }
-            } else null
-        )
+            OutlinedTextField(
+                value = uiState.email,
+                onValueChange = { onEvent(RegisterUiEvent.EmailChange(it)) },
+                label = { Text("Correo electronico") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                isError = uiState.errorEmail.isNotEmpty(),
+                supportingText = if (uiState.errorEmail.isNotEmpty()) {
+                    { Text(text = uiState.errorEmail, color = MaterialTheme.colorScheme.error) }
+                } else null
+            )
 
-        OutlinedTextField(
-            value = uiState.password,
-            onValueChange = { onEvent(RegisterUiEvent.PasswordChange(it)) },
-            label = { Text("Contraseña") },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                IconButton(
-                    onClick = { passwordVisible = !passwordVisible },
-                    enabled = !uiState.isLoading
-                ) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle Password"
-                    )
-                }
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading,
-            isError = uiState.errorPassword.isNotEmpty(),
-            supportingText = if (uiState.errorPassword.isNotEmpty()) {
-                { Text(text = uiState.errorPassword, color = MaterialTheme.colorScheme.error) }
-            } else null
-        )
+            OutlinedTextField(
+                value = uiState.password,
+                onValueChange = { onEvent(RegisterUiEvent.PasswordChange(it)) },
+                label = { Text("Contraseña") },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = { passwordVisible = !passwordVisible },
+                        enabled = !uiState.isLoading
+                    ) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Toggle Password"
+                        )
+                    }
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                isError = uiState.errorPassword.isNotEmpty(),
+                supportingText = if (uiState.errorPassword.isNotEmpty()) {
+                    { Text(text = uiState.errorPassword, color = MaterialTheme.colorScheme.error) }
+                } else null
+            )
 
-        OutlinedTextField(
-            value = uiState.passwordConfirm,
-            onValueChange = { onEvent(RegisterUiEvent.PasswordConfirmChange(it)) },
-            label = { Text("Confirmar Contraseña") },
-            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                IconButton(
-                    onClick = { confirmPasswordVisible = !confirmPasswordVisible },
-                    enabled = !uiState.isLoading
-                ) {
-                    Icon(
-                        imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle Confirm Password"
-                    )
-                }
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading,
-            isError = uiState.passwordConfirmError.isNotEmpty(),
-            supportingText = if (uiState.passwordConfirmError.isNotEmpty()) {
-                { Text(text = uiState.passwordConfirmError, color = MaterialTheme.colorScheme.error) }
-            } else null
-        )
+            OutlinedTextField(
+                value = uiState.passwordConfirm,
+                onValueChange = { onEvent(RegisterUiEvent.PasswordConfirmChange(it)) },
+                label = { Text("Confirmar Contraseña") },
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = { confirmPasswordVisible = !confirmPasswordVisible },
+                        enabled = !uiState.isLoading
+                    ) {
+                        Icon(
+                            imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Toggle Confirm Password"
+                        )
+                    }
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                isError = uiState.passwordConfirmError.isNotEmpty(),
+                supportingText = if (uiState.passwordConfirmError.isNotEmpty()) {
+                    {
+                        Text(
+                            text = uiState.passwordConfirmError,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                } else null
+            )
+        }
 
         if (uiState.isLoading) {
             LinearProgressIndicator(

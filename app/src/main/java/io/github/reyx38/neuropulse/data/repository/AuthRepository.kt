@@ -36,6 +36,7 @@ class AuthRepository @Inject constructor(
         return flow {
             try {
                 remote.registerUsuario(usuarioDto)
+                local.save(usuarioDto.toEntity())
                 emit(Resource.Success(Unit))
             } catch (e: Exception) {
                 emit(Resource.Error(e.message ?: "Error Desconoido"))
