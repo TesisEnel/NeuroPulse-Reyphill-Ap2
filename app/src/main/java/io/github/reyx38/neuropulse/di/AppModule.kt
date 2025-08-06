@@ -34,4 +34,6 @@ object AppModule {
     fun providesEjercicioCognitivo(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.ejercicioCognitivoDao()
     @Provides
     fun providesSesionJuegos(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.sesionJuegoDao()
+    @Provides
+    fun providesProgresionSemana(neuroPulseDb: NeuroPulseDb) = neuroPulseDb.progresionsemanalDao()
 }
