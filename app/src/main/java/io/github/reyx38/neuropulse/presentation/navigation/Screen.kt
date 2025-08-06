@@ -34,7 +34,7 @@ sealed class Screen {
     data object Sesiones : Screen()
 
     @Serializable
-    data class Ejercicios(val ejercicioCognitivoId: Int) : Screen()
+    data class Ejercicios(val usuarioId: Int) : Screen()
 
     @Serializable
     data class Desvanecimiento(val ejercicioCognitivoId: Int) : Screen()
@@ -47,6 +47,10 @@ sealed class Screen {
 
     @Serializable
     data class LogicaSombra (val ejercicioCognitivoId: Int) : Screen()
+
+    @Serializable
+    data class ProgresionSemanal(val usuarioId: Int) : Screen()
+
 
 
 }

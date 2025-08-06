@@ -27,6 +27,7 @@ class SesionRespiracionViewModel @Inject constructor(
         getUsuario()
         cargarRespiraciones()
     }
+
     fun getUsuario() {
         viewModelScope.launch {
             val user = authRepository.getUsuario()

@@ -100,8 +100,6 @@ class RegisterViewModel @Inject constructor(
                             }
                         }
                         is Resource.Loading -> {
-                            // Ya está en loading, no necesitamos actualizar de nuevo
-                            // Pero si quieres asegurarte:
                             _uiState.update {
                                 it.copy(isLoading = true)
                             }
@@ -109,7 +107,7 @@ class RegisterViewModel @Inject constructor(
                         is Resource.Success -> {
                             _uiState.update {
                                 it.copy(
-                                    isLoading = false,
+                                    isLoading = true,
                                     isSuccess = true,
                                     error = null
                                 )

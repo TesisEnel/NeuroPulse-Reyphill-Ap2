@@ -33,4 +33,10 @@ class RemoteDataSource @Inject constructor(
     //Sesiones Juegos
     suspend fun getSesionesJuegos(usuarioId: Int) = neuroPulseApi.getSesionesJuegosPorUsuario(usuarioId)
     suspend fun saveSesionesJuegos(sesionJuegosDto: SesionJuegosDto) = neuroPulseApi.saveSesionJuego(sesionJuegosDto)
+
+    //ProgresionSemanal
+    suspend fun getHistorialSemanal(usuarioId: Int) = neuroPulseApi.getHistorialProgresionSemanal(usuarioId)
+    suspend fun getActualProgresion(usuarioId: Int) = neuroPulseApi.getProgresionActual(usuarioId)
+    suspend fun actualizarProgresion(usuarioId: Int) = neuroPulseApi.actualizarProgresion(usuarioId)
+
 }

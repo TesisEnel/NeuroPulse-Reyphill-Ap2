@@ -18,7 +18,9 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 
-    init { getUsuario() }
+    init {
+        getUsuario()
+    }
 
     fun onEvent(event: LoginUiEvent) {
         when (event) {
@@ -94,7 +96,7 @@ class LoginViewModel @Inject constructor(
                             is Resource.Success -> {
                                 _uiState.update {
                                     it.copy(
-                                        isLoading = false,
+                                        isLoading = true,
                                         user = result.data,
                                         error = null,
                                         errorNombre = null,
@@ -110,18 +112,19 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun getUsuario(){
+    private fun getUsuario() {
         viewModelScope.launch {
-            val user =  authRepository.getUsuario()
+            val user = authRepository.getUsuario()
             _uiState.update {
                 it.copy(
                     user = user,
+                    isLoading = user != null
                 )
             }
         }
     }
 
-    private fun cerraSesion(){
+    private fun cerraSesion() {
         viewModelScope.launch {
             authRepository.cerrarSesion()
             _uiState.update {
@@ -133,7 +136,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun validar(): Boolean {
-        if (_uiState.value.nombre.isEmpty() ){
+        if (_uiState.value.nombre.isEmpty()) {
             _uiState.update {
                 it.copy(
                     errorNombre = "El nombre esta vacio"

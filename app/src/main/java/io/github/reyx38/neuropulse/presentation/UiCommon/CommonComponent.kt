@@ -31,6 +31,7 @@ fun NeuroDrawerScaffold(
     title: String = "NeuroPulse",
     navHostController: NavHostController,
     uiImagen: String?,
+    usuarioId:Int = 0,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -38,9 +39,9 @@ fun NeuroDrawerScaffold(
     var selectedItem by remember { mutableStateOf("home") }
 
     val drawerItems = listOf(
-        DrawerItem("progress", "Progresión Semanal", Icons.Default.ShowChart),
+        DrawerItem("progress", "Progresión semanal", Icons.Default.ShowChart,Screen.ProgresionSemanal(usuarioId)),
         DrawerItem("reflections", "Reflexiones", Icons.Default.EditNote, Screen.ReflexionListScreen),
-        DrawerItem("activities", "Historial deActividades", Icons.Default.Games,Screen.Ejercicios(1)),
+        DrawerItem("activities", "Historial de actividades", Icons.Default.Games, Screen.Ejercicios(usuarioId)),
         DrawerItem("Sesiones", "Historial de sesiones", Icons.Default.History, Screen.Sesiones )
     )
 

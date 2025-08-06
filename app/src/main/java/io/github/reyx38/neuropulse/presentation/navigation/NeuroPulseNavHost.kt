@@ -1,5 +1,6 @@
 package io.github.reyx38.neuropulse.presentation.navigation
 
+import ProgresionSemanalScreen
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -54,26 +55,35 @@ fun NeuroPulseNavHost(
                 onNavigateBack = {
                     navHostController.navigate(Screen.Home)
                 },
+
                 onIniciarActividad = { actividad ->
-                    when(actividad){
+                    when (actividad) {
                         1 -> {
                             navHostController.navigate(Screen.Desvanecimiento(1))
                         }
+
                         2 -> {
                             navHostController.navigate(Screen.SecuenciaMental(2))
                         }
+
                         3 -> {
                             navHostController.navigate(Screen.ConflictoColores(3))
                         }
+
                         4 -> {
                             navHostController.navigate(Screen.LogicaSombra(4))
                         }
-                        else -> {navHostController.navigate(Screen.Home)}
+
+                        else -> {
+                            navHostController.navigate(Screen.Home)
+                        }
                     }
                 }
+
             )
         }
         composable<Screen.Login> {
+
             LoginScreen(
                 goToHome = {
                     navHostController.navigate(Screen.Home) {
@@ -84,7 +94,6 @@ fun NeuroPulseNavHost(
                 goToRegister = {
                     navHostController.navigate(Screen.Register)
                 }
-
             )
         }
         composable<Screen.Register> {
@@ -115,6 +124,7 @@ fun NeuroPulseNavHost(
         }
         composable<Screen.ReflexionScreen> {
             val reflexionId = it.toRoute<Screen.ReflexionScreen>().reflexionId
+
             ReflexionScreen(
                 goToBack = {
                     navHostController.navigateUp()
@@ -149,6 +159,7 @@ fun NeuroPulseNavHost(
             val parentEntry = remember {
                 navHostController.getBackStackEntry(Screen.MenuRespiraciones)
             }
+
             val viewModel: RespiracionViewModel = hiltViewModel(parentEntry)
             RespiracionScreen(
                 viewModel = viewModel,
@@ -188,7 +199,6 @@ fun NeuroPulseNavHost(
         }
         composable<Screen.LogicaSombra> {
             val ejercicioCognitivoId = it.toRoute<Screen.LogicaSombra>().ejercicioCognitivoId
-
             LogicaSombraScreen(
                 onNavigateBack = {
                     navHostController.navigateUp()
@@ -208,14 +218,25 @@ fun NeuroPulseNavHost(
 
             )
         }
-        composable<Screen.Ejercicios>{
+        composable<Screen.Ejercicios> {
+            val usuarioId = it.toRoute<Screen.Ejercicios>().usuarioId
             HistorialEjerciciosScreen(
-                usuarioId = 1,
+                usuarioId = usuarioId,
                 onBack = {
                     navHostController.navigateUp()
                 }
             )
+        }
+        composable<Screen.ProgresionSemanal> {
+            val usuarioId = it.toRoute<Screen.ProgresionSemanal>().usuarioId
+            ProgresionSemanalScreen(
+                usuarioId = usuarioId,
 
+                goBack = {
+                    navHostController.navigateUp()
+                }
+
+            )
         }
     }
 }

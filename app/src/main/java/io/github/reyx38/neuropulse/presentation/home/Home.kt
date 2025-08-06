@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
+import io.github.reyx38.neuropulse.presentation.progresionSemanal.ProgresionSemanalViewModel
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioViewModel
 import io.github.reyx38.neuropulse.ui.theme.*
 import kotlinx.coroutines.delay
@@ -38,6 +39,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
+    viewModelProgresion: ProgresionSemanalViewModel = hiltViewModel(),
     navHostController: NavHostController,
     viewModel: UsuarioViewModel = hiltViewModel(),
     goToActividades: () -> Unit,
@@ -56,7 +58,8 @@ fun Home(
 
     NeuroDrawerScaffold(
         navHostController = navHostController,
-        uiImagen = uiState.usuario?.imagenPerfil
+        uiImagen = uiState.usuario?.imagenPerfil,
+        usuarioId = uiState.usuarioId ?: 0
     ) {
         Box(
             modifier = Modifier
@@ -90,7 +93,7 @@ fun Home(
                     GreetingCard(nombre = uiState.usuario?.nombreUsuario)
 
                     Text(
-                        text = "Tus Actividades de Hoy",
+                        text = "Actividades disponible",
                         style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                         color = onPrimaryContainerLight,
                         modifier = Modifier
@@ -100,21 +103,21 @@ fun Home(
 
                     ActivityCard(
                         icon = R.drawable.brain,
-                        title = "Actividades Diarias",
+                        title = "Ejercicios cognitivos",
                         progressColor = tertiaryContainerLight,
                         goActivity = goToActividades
                     )
 
                     ActivityCard(
                         icon = R.drawable.img_1,
-                        title = "Ejercicio de Respiración",
+                        title = "Ejercicios de Respiración",
                         progressColor = secondaryContainerLight,
                         goActivity = goToRespiracion
                     )
 
                     ActivityCard(
                         icon = R.drawable.img,
-                        title = "Reflexión Escrita",
+                        title = "Reflexiónes Escritas",
                         progressColor = primaryLight,
                         goActivity = goToReflexiones
                     )

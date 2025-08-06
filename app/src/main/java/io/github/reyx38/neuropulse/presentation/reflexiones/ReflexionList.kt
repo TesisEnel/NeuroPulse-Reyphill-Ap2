@@ -72,10 +72,9 @@ fun ReflexionBodyScreen(
     onEdit: (Int?) -> Unit,
     onDelete: (Int?) -> Unit,
     goBack: () -> Unit
-
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Alegre", "Normal", "Triste", "Enojado")
+    var selectedTab by remember { mutableStateOf<Int?>(null) }
+    val tabs = listOf("Feliz", "Normal", "Triste", "Enojado")
 
     Box(
         modifier = Modifier
@@ -123,14 +122,12 @@ fun ReflexionBodyScreen(
                     Column {
                         TopAppBar(
                             title = {
-                                Column {
-                                    Text(
-                                        text = "Mis Reflexiones",
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
+                                Text(
+                                    text = "Mis Reflexiones",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             },
                             navigationIcon = {
                                 IconButton(
@@ -138,9 +135,7 @@ fun ReflexionBodyScreen(
                                     modifier = Modifier
                                         .clip(CircleShape)
                                         .background(
-                                            MaterialTheme.colorScheme.surfaceVariant.copy(
-                                                alpha = 0.7f
-                                            )
+                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
                                         )
                                 ) {
                                     Icon(
@@ -156,38 +151,41 @@ fun ReflexionBodyScreen(
                         )
 
                         TabRow(
-                            selectedTabIndex = selectedTab,
+                            selectedTabIndex = selectedTab ?: -1,
                             containerColor = Color.Transparent,
                             contentColor = MaterialTheme.colorScheme.primary,
                             indicator = { tabPositions ->
-                                Box(
-                                    modifier = Modifier
-                                        .tabIndicatorOffset(tabPositions[selectedTab])
-                                        .height(4.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            Brush.horizontalGradient(
-                                                colors = listOf(
-                                                    MaterialTheme.colorScheme.primary,
-                                                    MaterialTheme.colorScheme.primaryContainer
+                                if (selectedTab != null) {
+                                    Box(
+                                        modifier = Modifier
+                                            .tabIndicatorOffset(tabPositions[selectedTab!!])
+                                            .height(4.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                Brush.horizontalGradient(
+                                                    colors = listOf(
+                                                        MaterialTheme.colorScheme.primary,
+                                                        MaterialTheme.colorScheme.primaryContainer
+                                                    )
                                                 )
                                             )
-                                        )
-                                )
+                                    )
+                                }
                             },
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            divider = {}
                         ) {
                             tabs.forEachIndexed { index, title ->
                                 Tab(
                                     selected = selectedTab == index,
-                                    onClick = { selectedTab = index },
+                                    onClick = {
+                                        selectedTab = if (selectedTab == index) null else index
+                                    },
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(12.dp))
                                         .background(
                                             if (selectedTab == index)
-                                                MaterialTheme.colorScheme.primaryContainer.copy(
-                                                    alpha = 0.2f
-                                                )
+                                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
                                             else Color.Transparent
                                         ),
                                     text = {
@@ -259,12 +257,16 @@ fun ReflexionBodyScreen(
                     }
                 }
 
+                val reflexionesFiltradas = uiState.reflexiones.filter {
+                    selectedTab == null || it?.estadoReflexion.equals(tabs[selectedTab!!], ignoreCase = true)
+                }
+
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(uiState.reflexiones) { reflexion ->
+                    items(reflexionesFiltradas) { reflexion ->
                         ReflexionItem(
                             reflexion = reflexion,
                             usuario = usuario,
@@ -277,6 +279,7 @@ fun ReflexionBodyScreen(
         }
     }
 }
+
 
 @Composable
 fun ReflexionItem(
