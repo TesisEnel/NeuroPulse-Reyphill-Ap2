@@ -1,19 +1,24 @@
 package io.github.reyx38.neuropulse.presentation.navigation
 
+import ProgresionSemanalScreen
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import io.github.reyx38.neuropulse.presentation.ActividadesDiarias.ActividadesDiariasScreen
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.MenuSessionRespiracion
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.RespiracionScreen
 import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionesRespiracionScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.CatalogoEjercicios.EjerciciosCognitivosScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.ConflictoColores.ConflictoColoresScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.DesvanecimientoGame.DesvanecimientoScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.HistorialEjercicios.HistorialEjerciciosScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.LogicaSombra.LogicaSombraScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.SecuenciaMental.SecuenciaMentalScreen
 import io.github.reyx38.neuropulse.presentation.experiencia.ReflexionScreen
 import io.github.reyx38.neuropulse.presentation.home.Home
 import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionListScreen
@@ -46,11 +51,40 @@ fun NeuroPulseNavHost(
             )
         }
         composable<Screen.HomeActivities> {
-            ActividadesDiariasScreen()
+            EjerciciosCognitivosScreen(
+                onNavigateBack = {
+                    navHostController.navigate(Screen.Home)
+                },
+
+                onIniciarActividad = { actividad ->
+                    when (actividad) {
+                        1 -> {
+                            navHostController.navigate(Screen.Desvanecimiento(1))
+                        }
+
+                        2 -> {
+                            navHostController.navigate(Screen.SecuenciaMental(2))
+                        }
+
+                        3 -> {
+                            navHostController.navigate(Screen.ConflictoColores(3))
+                        }
+
+                        4 -> {
+                            navHostController.navigate(Screen.LogicaSombra(4))
+                        }
+
+                        else -> {
+                            navHostController.navigate(Screen.Home)
+                        }
+                    }
+                }
+
+            )
         }
         composable<Screen.Login> {
-            LoginScreen(
 
+            LoginScreen(
                 goToHome = {
                     navHostController.navigate(Screen.Home) {
                         popUpTo(Screen.Login) { inclusive = true }
@@ -60,12 +94,10 @@ fun NeuroPulseNavHost(
                 goToRegister = {
                     navHostController.navigate(Screen.Register)
                 }
-
             )
         }
         composable<Screen.Register> {
             RegistarScreen(
-
                 goToHome = {
                     navHostController.navigate(Screen.Home) {
                         popUpTo(Screen.Login) { inclusive = true }
@@ -75,7 +107,6 @@ fun NeuroPulseNavHost(
                 goToLogin = {
                     navHostController.navigate(Screen.Login)
                 }
-
             )
         }
         composable<Screen.UsuarioOptiones> {
@@ -93,6 +124,7 @@ fun NeuroPulseNavHost(
         }
         composable<Screen.ReflexionScreen> {
             val reflexionId = it.toRoute<Screen.ReflexionScreen>().reflexionId
+
             ReflexionScreen(
                 goToBack = {
                     navHostController.navigateUp()
@@ -127,6 +159,7 @@ fun NeuroPulseNavHost(
             val parentEntry = remember {
                 navHostController.getBackStackEntry(Screen.MenuRespiraciones)
             }
+
             val viewModel: RespiracionViewModel = hiltViewModel(parentEntry)
             RespiracionScreen(
                 viewModel = viewModel,
@@ -143,7 +176,68 @@ fun NeuroPulseNavHost(
 
             )
         }
+        composable<Screen.Desvanecimiento> {
+            val ejercicioCognitivoId = it.toRoute<Screen.Desvanecimiento>().ejercicioCognitivoId
 
+            DesvanecimientoScreen(
+                onNavigateBack = {
+                    navHostController.navigateUp()
+                },
+                ejercicioCognitivoId = ejercicioCognitivoId
+            )
+        }
+        composable<Screen.SecuenciaMental> {
+            val ejercicioCognitivoId = it.toRoute<Screen.SecuenciaMental>().ejercicioCognitivoId
+
+            SecuenciaMentalScreen(
+                onNavigateBack = {
+                    navHostController.navigateUp()
+                },
+                ejercicioCognitivoId = ejercicioCognitivoId
+
+            )
+        }
+        composable<Screen.LogicaSombra> {
+            val ejercicioCognitivoId = it.toRoute<Screen.LogicaSombra>().ejercicioCognitivoId
+            LogicaSombraScreen(
+                onNavigateBack = {
+                    navHostController.navigateUp()
+                },
+                ejercicioCognitivoId = ejercicioCognitivoId
+
+            )
+        }
+        composable<Screen.ConflictoColores> {
+            val ejercicioCognitivoId = it.toRoute<Screen.ConflictoColores>().ejercicioCognitivoId
+
+            ConflictoColoresScreen(
+                onNavigateBack = {
+                    navHostController.navigateUp()
+                },
+                ejercicioCognitivoId = ejercicioCognitivoId
+
+            )
+        }
+        composable<Screen.Ejercicios> {
+            val usuarioId = it.toRoute<Screen.Ejercicios>().usuarioId
+            HistorialEjerciciosScreen(
+                usuarioId = usuarioId,
+                onBack = {
+                    navHostController.navigateUp()
+                }
+            )
+        }
+        composable<Screen.ProgresionSemanal> {
+            val usuarioId = it.toRoute<Screen.ProgresionSemanal>().usuarioId
+            ProgresionSemanalScreen(
+                usuarioId = usuarioId,
+
+                goBack = {
+                    navHostController.navigateUp()
+                }
+
+            )
+        }
     }
 }
 

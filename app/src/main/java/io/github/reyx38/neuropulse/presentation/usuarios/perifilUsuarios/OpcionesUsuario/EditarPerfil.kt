@@ -127,7 +127,6 @@ fun ProfileDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Profile Image
             Box(
                 modifier = Modifier
                     .size(120.dp)

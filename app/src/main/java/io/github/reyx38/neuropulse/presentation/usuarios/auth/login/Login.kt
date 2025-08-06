@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
@@ -41,7 +43,10 @@ fun LoginScreen(
 
 
     LaunchedEffect(uiState.user != null) {
-        if (uiState.user != null) goToHome()
+        if (uiState.user != null) {
+            delay(1000)
+            goToHome()
+        }
     }
 
     LoginBodyScreen(
@@ -95,212 +100,151 @@ fun LoginBodyScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            if(!uiState.isLoading) {
 
-            Column {
-
-                OutlinedTextField(
-                    value = uiState.nombre,
-                    onValueChange = { onEvent(LoginUiEvent.NombreChange(it)) },
-                    label = { Text("Nombre de usuario") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.isLoading,
-                    isError = !uiState.errorNombre.isNullOrEmpty(),
-                    supportingText = {
-                        AnimatedVisibility(
-                            visible = !uiState.errorNombre.isNullOrEmpty(),
-                            enter = slideInVertically(
-                                initialOffsetY = { -it / 2 },
-                                animationSpec = tween(200, easing = EaseOutCubic)
-                            ) + fadeIn(tween(200)),
-                            exit = slideOutVertically(
-                                targetOffsetY = { -it / 2 },
-                                animationSpec = tween(150)
-                            ) + fadeOut(tween(150))
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                Column {
+                    OutlinedTextField(
+                        value = uiState.nombre,
+                        onValueChange = { onEvent(LoginUiEvent.NombreChange(it)) },
+                        label = { Text("Nombre de usuario") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uiState.isLoading,
+                        isError = !uiState.errorNombre.isNullOrEmpty(),
+                        supportingText = {
+                            AnimatedVisibility(
+                                visible = !uiState.errorNombre.isNullOrEmpty(),
+                                enter = slideInVertically(
+                                    initialOffsetY = { -it / 2 },
+                                    animationSpec = tween(200, easing = EaseOutCubic)
+                                ) + fadeIn(tween(200)),
+                                exit = slideOutVertically(
+                                    targetOffsetY = { -it / 2 },
+                                    animationSpec = tween(150)
+                                ) + fadeOut(tween(150))
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Error,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                                Text(
-                                    text = uiState.errorNombre ?: "",
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Error,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                    Text(
+                                        text = uiState.errorNombre ?: "",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(4.dp))
-            Column {
-                OutlinedTextField(
-                    value = uiState.password,
-                    onValueChange = { onEvent(LoginUiEvent.PasswordChange(it)) },
-                    label = { Text("Contraseña") },
-                    singleLine = true,
-                    visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val icon = if (showPass) Icons.Default.VisibilityOff else Icons.Default.Visibility
-                        IconButton(onClick = { showPass = !showPass }) {
-                            Icon(icon, contentDescription = null)
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.isLoading,
-                    isError = !uiState.errorPassword.isNullOrEmpty(),
-                    supportingText = {
-                        AnimatedVisibility(
-                            visible = !uiState.errorPassword.isNullOrEmpty(),
-                            enter = slideInVertically(
-                                initialOffsetY = { -it / 2 },
-                                animationSpec = tween(200, easing = EaseOutCubic)
-                            ) + fadeIn(tween(200)),
-                            exit = slideOutVertically(
-                                targetOffsetY = { -it / 2 },
-                                animationSpec = tween(150)
-                            ) + fadeOut(tween(150))
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                Spacer(modifier = Modifier.height(4.dp))
+                Column {
+                    OutlinedTextField(
+                        value = uiState.password,
+                        onValueChange = { onEvent(LoginUiEvent.PasswordChange(it)) },
+                        label = { Text("Contraseña") },
+                        singleLine = true,
+                        visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val icon =
+                                if (showPass) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                            IconButton(onClick = { showPass = !showPass }) {
+                                Icon(icon, contentDescription = null)
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uiState.isLoading,
+                        isError = !uiState.errorPassword.isNullOrEmpty(),
+                        supportingText = {
+                            AnimatedVisibility(
+                                visible = !uiState.errorPassword.isNullOrEmpty(),
+                                enter = slideInVertically(
+                                    initialOffsetY = { -it / 2 },
+                                    animationSpec = tween(200, easing = EaseOutCubic)
+                                ) + fadeIn(tween(200)),
+                                exit = slideOutVertically(
+                                    targetOffsetY = { -it / 2 },
+                                    animationSpec = tween(150)
+                                ) + fadeOut(tween(150))
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Error,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                                Text(
-                                    text = uiState.errorPassword ?: "",
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Error,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                    Text(
+                                        text = uiState.errorPassword ?: "",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
-                    }
-                )
+                    )
 
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
             }
+        }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-
-            AnimatedVisibility(
-                visible = uiState.isLoading,
-                enter = slideInVertically(
-                    initialOffsetY = { -it },
-                    animationSpec = tween(300, easing = EaseOutCubic)
-                ) + fadeIn(tween(300)),
-                exit = slideOutVertically(
-                    targetOffsetY = { -it },
-                    animationSpec = tween(200)
-                ) + fadeOut(tween(200))
+        AnimatedVisibility(
+            visible = uiState.isLoading,
+            enter = slideInVertically(
+                initialOffsetY = { -it },
+                animationSpec = tween(300, easing = EaseOutCubic)
+            ) + fadeIn(tween(300)),
+            exit = slideOutVertically(
+                targetOffsetY = { -it },
+                animationSpec = tween(200)
+            ) + fadeOut(tween(200))
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+                )
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     LinearProgressIndicator(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(4.dp),
+                            .height(6.dp)
+                            .clip(CircleShape),
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Autenticando...",
-                        style = MaterialTheme.typography.bodySmall,
+                        text = "Iniciando sesion...",
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium
                     )
-                }
-            }
-        }
-
-        AnimatedVisibility(
-            visible = uiState.error != null,
-            enter = slideInVertically(
-                initialOffsetY = { it },
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            ) + fadeIn(
-                animationSpec = tween(400, easing = EaseOutCubic)
-            ) + scaleIn(
-                initialScale = 0.8f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium
-                )
-            ),
-            exit = slideOutVertically(
-                targetOffsetY = { -it },
-                animationSpec = tween(250, easing = EaseInCubic)
-            ) + fadeOut(tween(250)) + scaleOut(
-                targetScale = 0.9f,
-                animationSpec = tween(250)
-            )
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                ),
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-
-                    Icon(
-                        imageVector = Icons.Default.Error,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(24.dp)
-                    )
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Error de autenticación",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.error,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = uiState.error ?: "",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
-
-                    TextButton(
-                        onClick = { onEvent(LoginUiEvent.New) },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Text("Cerrar", fontWeight = FontWeight.Medium)
-                    }
                 }
             }
         }

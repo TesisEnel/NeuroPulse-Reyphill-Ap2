@@ -104,7 +104,6 @@ fun BreathingCircle(
         }
     }
 
-    // Encontrar la fase actual
     val currentPhaseData = phases.find { phase ->
         when (currentPhase) {
             EstadosRespiracion.INHALING -> phase.name == "Inhala"
@@ -114,7 +113,6 @@ fun BreathingCircle(
     } ?: phases.firstOrNull() ?: BreathingPhase("Detenido", 0L, Color.Gray)
 
 
-    // Función para manejar la salida
     fun handleExit() {
         if (isRunning || remainingTimeMs > 0) {
             showExitDialog = true
@@ -349,7 +347,7 @@ fun BreathingCircle(
 
         Spacer(modifier = Modifier.height(16.dp))
     }
-    //Dialog para termine la sesion
+
     if (remainingTimeMs <= 0L && !isRunning ){
         ConfirmationDialog(
             onConfirm = {
@@ -374,12 +372,10 @@ fun BreathingCircle(
 
     }
 
-    //Dialgo para cuando el usuario intente dejar la sesion incompleta
     if (showExitDialog) {
         ConfirmationDialog(
             onConfirm = {
                 showExitDialog = false
-                // Pausar la sesión si está corriendo
                 if (isRunning) {
                     viewModel.togglePlayPause()
                 }

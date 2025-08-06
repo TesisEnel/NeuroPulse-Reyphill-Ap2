@@ -1,4 +1,4 @@
-package io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion
+package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.HistorialEjercicios
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -27,24 +27,26 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacion
-import io.github.reyx38.neuropulse.data.remote.dto.SesionRespiracionDto
 import io.github.reyx38.neuropulse.presentation.UiCommon.TimerUtils.formatearFecha
+import io.github.reyx38.neuropulse.data.local.entities.EjerciciosCognitivoEntity
+import io.github.reyx38.neuropulse.data.remote.dto.SesionJuegosDto
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.CatalogoEjercicios.EjerciciosCognitivosUiState
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.CatalogoEjercicios.EjerciciosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SesionesRespiracionScreen(
-    viewModel: SesionRespiracionViewModel = hiltViewModel(),
+fun HistorialEjerciciosScreen(
+    usuarioId: Int,
+    viewModel: EjerciciosViewModel = hiltViewModel(),
     onBack: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedSession by remember { mutableStateOf<SesionRespiracionDto?>(null) }
+    var selectedSession by remember { mutableStateOf<SesionJuegosDto?>(null) }
 
-    LaunchedEffect(uiState.usuario?.usuarioId) {
-        uiState.usuario?.usuarioId?.let {
-            viewModel.getSesiones(it)
-        }
+    LaunchedEffect(usuarioId) {
+        viewModel.getSesiones(usuarioId)
     }
+
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
@@ -61,10 +63,16 @@ fun SesionesRespiracionScreen(
                         title = {
                             Column {
                                 Text(
-                                    text = "Mis sesiones de respiracion",
+                                    text = "Historial de Ejercicios",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Cognitivos",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         },
@@ -86,8 +94,6 @@ fun SesionesRespiracionScreen(
                             containerColor = Color.Transparent
                         )
                     )
-
-
                 }
             }
         }
@@ -95,7 +101,7 @@ fun SesionesRespiracionScreen(
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
-            // Loading indicator animado
+            // Loading indicator
             AnimatedVisibility(
                 visible = uiState.isLoading,
                 enter = slideInVertically(
@@ -134,7 +140,7 @@ fun SesionesRespiracionScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "Cargando tus sesiones...",
+                            text = "Cargando historial...",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
@@ -144,7 +150,15 @@ fun SesionesRespiracionScreen(
                 }
             }
 
-            SesionesRespiracionBodyList(
+            // Estadísticas rápidas
+            if (!uiState.isLoading && uiState.sesiones.isNotEmpty()) {
+                EstadisticasRapidas(
+                    sesiones = uiState.sesiones,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+
+            HistorialEjerciciosBodyList(
                 uiState = uiState,
                 modifier = Modifier.fillMaxSize(),
                 onSessionClick = { session -> selectedSession = session }
@@ -153,23 +167,96 @@ fun SesionesRespiracionScreen(
 
         // Dialog para mostrar detalles de la sesión
         selectedSession?.let { session ->
-            SesionDetailDialog(
+            SesionEjercicioDetailDialog(
                 session = session,
-                respiraciones = uiState.listRespiracion,
-                onDismiss = { selectedSession = null },
+                ejercicios = uiState.ejercicios,
+                onDismiss = { selectedSession = null }
             )
         }
     }
 }
 
 @Composable
-fun SesionesRespiracionBodyList(
-    uiState: SesionRespiracionUiState,
-    modifier: Modifier = Modifier,
-    onSessionClick: (SesionRespiracionDto) -> Unit = {}
+fun EstadisticasRapidas(
+    sesiones: List<SesionJuegosDto>,
+    modifier: Modifier = Modifier
 ) {
-    // Solo mostrar el estado vacío si no está cargando y la lista está vacía
-    if (uiState.listaSesiones.isEmpty() && !uiState.isLoading) {
+    val completadas = sesiones.count { it.completado }
+    val puntuacionPromedio = if (sesiones.isNotEmpty()) {
+        sesiones.map { it.puntuacion }.average().toInt()
+    } else 0
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            EstadisticaItem(
+                icon = Icons.Default.Psychology,
+                label = "Total",
+                value = sesiones.size.toString()
+            )
+
+            EstadisticaItem(
+                icon = Icons.Default.CheckCircle,
+                label = "Completadas",
+                value = completadas.toString()
+            )
+
+            EstadisticaItem(
+                icon = Icons.Default.TrendingUp,
+                label = "Promedio",
+                value = "$puntuacionPromedio pts"
+            )
+        }
+    }
+}
+
+@Composable
+fun EstadisticaItem(
+    icon: ImageVector,
+    label: String,
+    value: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun HistorialEjerciciosBodyList(
+    uiState: EjerciciosCognitivosUiState,
+    modifier: Modifier = Modifier,
+    onSessionClick: (SesionJuegosDto) -> Unit = {}
+) {
+    if (uiState.sesiones.isEmpty() && !uiState.isLoading) {
         AnimatedVisibility(
             visible = true,
             enter = fadeIn(
@@ -188,26 +275,26 @@ fun SesionesRespiracionBodyList(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.SelfImprovement,
+                        imageVector = Icons.Default.Psychology,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "No hay sesiones para mostrar",
+                        text = "No hay ejercicios para mostrar",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Comienza tu primera sesión de respiración",
+                        text = "Comienza tu primer ejercicio cognitivo",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
         }
-    } else if (uiState.listaSesiones.isNotEmpty()) {
+    } else if (uiState.sesiones.isNotEmpty()) {
         AnimatedVisibility(
             visible = !uiState.isLoading,
             enter = fadeIn(
@@ -226,10 +313,10 @@ fun SesionesRespiracionBodyList(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(vertical = 16.dp)
             ) {
-                items(uiState.listaSesiones) { sesion ->
-                    SesionRespiracionCard(
+                items(uiState.sesiones) { sesion ->
+                    SesionEjercicioCard(
                         sesion = sesion,
-                        respiraciones = uiState.listRespiracion,
+                        ejercicios = uiState.ejercicios,
                         onClick = { onSessionClick(sesion) }
                     )
                 }
@@ -239,20 +326,19 @@ fun SesionesRespiracionBodyList(
 }
 
 @Composable
-fun SesionRespiracionCard(
-    sesion: SesionRespiracionDto,
-    respiraciones: List<RespiracionWithInformacion>,
+fun SesionEjercicioCard(
+    sesion: SesionJuegosDto,
+    ejercicios: List<EjerciciosCognitivoEntity>,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
-    val respiracionNombre = respiraciones.find {
-        it.respiracion.idRespiracion == sesion.idRespiracion
-    }?.respiracion?.nombre ?: "Desconocido"
+    val ejercicio = ejercicios.find { it.ejercicosCognitivosId == sesion.ejercicioCognitivoId }
+    val nombreEjercicio = ejercicio?.titulo ?: "Ejercicio Desconocido"
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(160.dp)
+            .height(180.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(
@@ -265,12 +351,12 @@ fun SesionRespiracionCard(
                 .fillMaxSize()
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             // Ícono circular en la parte superior
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary,
+                color = obtenerColorCategoria(nombreEjercicio),
                 shadowElevation = 4.dp,
                 modifier = Modifier.size(48.dp)
             ) {
@@ -279,84 +365,86 @@ fun SesionRespiracionCard(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Icon(
-                        imageVector = obtenerIconoTecnica(nombreTecnica = respiracionNombre),
+                        imageVector = obtenerIconoCategoria(nombreEjercicio),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Nombre de la técnica centrado
-            Text(
-                text = respiracionNombre,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Duración
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = Icons.Default.Schedule,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "${sesion.duracionMinutos} min",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = nombreEjercicio,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Estado
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = if (sesion.estado == "completo")
-                    MaterialTheme.colorScheme.primaryContainer
-                else
-                    MaterialTheme.colorScheme.errorContainer,
-                modifier = Modifier.padding(horizontal = 4.dp)
+            // Información inferior
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = sesion.estado.replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = if (sesion.estado == "completo")
-                        MaterialTheme.colorScheme.onPrimaryContainer
+                // Puntuación
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Stars,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${sesion.puntuacion} pts",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Estado
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (sesion.completado)
+                        MaterialTheme.colorScheme.primaryContainer
                     else
-                        MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                )
+                        MaterialTheme.colorScheme.errorContainer
+                ) {
+                    Text(
+                        text = if (sesion.completado) "Completado" else "Incompleto",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Medium,
+                        color = if (sesion.completado)
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        else
+                            MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun SesionDetailDialog(
-    session: SesionRespiracionDto,
-    respiraciones: List<RespiracionWithInformacion>,
-    onDismiss: () -> Unit,
+fun SesionEjercicioDetailDialog(
+    session: SesionJuegosDto,
+    ejercicios: List<EjerciciosCognitivoEntity>,
+    onDismiss: () -> Unit
 ) {
-    val respiracionNombre = respiraciones.find {
-        it.respiracion.idRespiracion == session.idRespiracion
-    }?.respiracion?.nombre ?: "Desconocido"
+    val ejercicio = ejercicios.find { it.ejercicosCognitivosId == session.ejercicioCognitivoId }
+    val nombreEjercicio = ejercicio?.titulo ?: "Ejercicio Desconocido"
+    val descripcion = ejercicio?.descripcion ?: "Sin descripción disponible"
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -373,10 +461,10 @@ fun SesionDetailDialog(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Ícono grande en la parte superior
+                // Ícono grande
                 Surface(
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = obtenerColorCategoria(nombreEjercicio),
                     shadowElevation = 8.dp,
                     modifier = Modifier.size(80.dp)
                 ) {
@@ -385,9 +473,9 @@ fun SesionDetailDialog(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Icon(
-                            imageVector = obtenerIconoTecnica(nombreTecnica = respiracionNombre),
+                            imageVector = obtenerIconoCategoria(nombreEjercicio),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
+                            tint = Color.White,
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -397,7 +485,7 @@ fun SesionDetailDialog(
 
                 // Título
                 Text(
-                    text = "Detalles de la Sesión",
+                    text = "Detalles del Ejercicio",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -405,52 +493,73 @@ fun SesionDetailDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Información de la sesión
-                SessionDetailRow(
-                    icon = Icons.Default.SelfImprovement,
-                    label = "Técnica",
-                    value = respiracionNombre
+                // Información detallada
+                EjercicioDetailRow(
+                    icon = Icons.Default.Psychology,
+                    label = "Ejercicio",
+                    value = nombreEjercicio
                 )
 
-                SessionDetailRow(
-                    icon = Icons.Default.Schedule,
-                    label = "Duración",
-                    value = "${session.duracionMinutos} minutos"
+                EjercicioDetailRow(
+                    icon = Icons.Default.Stars,
+                    label = "Puntuación",
+                    value = "${session.puntuacion} puntos",
+                    valueColor = MaterialTheme.colorScheme.tertiary
                 )
 
-                SessionDetailRow(
-                    icon = if (session.estado == "completo") Icons.Default.CheckCircle else Icons.Default.Cancel,
+                EjercicioDetailRow(
+                    icon = if (session.completado) Icons.Default.CheckCircle else Icons.Default.Cancel,
                     label = "Estado",
-                    value = session.estado.replaceFirstChar { it.uppercase() },
-                    valueColor = if (session.estado == "completo")
+                    value = if (session.completado) "Completado" else "Incompleto",
+                    valueColor = if (session.completado)
                         MaterialTheme.colorScheme.primary
                     else
                         MaterialTheme.colorScheme.error
                 )
 
-                session.fechaRealizada?.let { fecha ->
-                    SessionDetailRow(
-                        icon = Icons.Default.CalendarToday,
-                        label = "Fecha",
-                        value = formatearFecha(fecha)
-                    )
+                EjercicioDetailRow(
+                    icon = Icons.Default.CalendarToday,
+                    label = "Fecha",
+                    value = formatearFecha(session.fechaRealizacion.toString())
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Descripción
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        Text(
+                            text = "Descripción",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = descripcion,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botones
-                Row(
+                // Botón cerrar
+                OutlinedButton(
+                    onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("Cerrar")
-                    }
-
+                    Text("Cerrar")
                 }
             }
         }
@@ -458,7 +567,7 @@ fun SesionDetailDialog(
 }
 
 @Composable
-fun SessionDetailRow(
+fun EjercicioDetailRow(
     icon: ImageVector,
     label: String,
     value: String,
@@ -495,12 +604,29 @@ fun SessionDetailRow(
     }
 }
 
-fun obtenerIconoTecnica(nombreTecnica: String): ImageVector {
-    return when {
-        nombreTecnica.contains("4-4") -> Icons.Default.Spa
-        nombreTecnica.contains("4-7-8") -> Icons.Default.SelfImprovement
-        nombreTecnica.contains("5-5") -> Icons.Default.FilterDrama
-        nombreTecnica.contains("6-2-8") -> Icons.Default.Waves
-        else -> Icons.Default.Air
+// Funciones de utilidad para iconos y colores por categoría
+@Composable
+fun obtenerIconoCategoria(categoria: String): ImageVector {
+    return when (categoria.lowercase()) {
+        "memoria" -> Icons.Default.Psychology
+        "atencion" -> Icons.Default.Visibility
+        "concentracion" -> Icons.Default.CenterFocusStrong
+        "velocidad" -> Icons.Default.Speed
+        "logica" -> Icons.Default.Functions
+        "calculo" -> Icons.Default.Calculate
+        else -> Icons.Default.Psychology
+    }
+}
+
+@Composable
+fun obtenerColorCategoria(categoria: String): Color {
+    return when (categoria.lowercase()) {
+        "memoria" -> MaterialTheme.colorScheme.primary
+        "atencion" -> MaterialTheme.colorScheme.secondary
+        "concentracion" -> MaterialTheme.colorScheme.tertiary
+        "velocidad" -> MaterialTheme.colorScheme.error
+        "logica" -> MaterialTheme.colorScheme.outline
+        "calculo" -> MaterialTheme.colorScheme.surfaceTint
+        else -> MaterialTheme.colorScheme.primary
     }
 }

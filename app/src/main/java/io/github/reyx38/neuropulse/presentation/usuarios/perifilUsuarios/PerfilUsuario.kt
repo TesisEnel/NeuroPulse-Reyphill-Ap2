@@ -29,8 +29,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.sp
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
-import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ConfiguracionUsuarios
-
 
 @Composable
 fun ProfileScreen(
@@ -59,7 +57,6 @@ fun ProfileScreen(
                 onBack = { vistaActual.value = "main" })
         }
 
-        "settings" -> ConfiguracionUsuarios(onBack = { vistaActual.value = "main" })
         "logout" -> {
             MainProfileScreen(
                 uiSate = uiState,
@@ -100,7 +97,7 @@ fun MainProfileScreen(
                         title = {
                             Column {
                                 Text(
-                                    text = "Mis Reflexiones",
+                                    text = "Mi Perfil",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold
@@ -149,14 +146,6 @@ fun MainProfileScreen(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 iconColor = MaterialTheme.colorScheme.primary,
                 onClick = { onSectionSelect("profile") }
-            )
-
-            ProfileMenuItem(
-                icon = Icons.Default.Settings,
-                title = "Configuracion",
-                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                onClick = { onSectionSelect("settings") }
             )
 
             ProfileMenuItem(
