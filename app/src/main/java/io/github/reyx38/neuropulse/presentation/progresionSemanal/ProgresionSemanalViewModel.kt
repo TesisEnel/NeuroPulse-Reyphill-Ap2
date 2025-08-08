@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.reyx38.neuropulse.data.remote.Resource
 import io.github.reyx38.neuropulse.data.repository.AuthRepository
 import io.github.reyx38.neuropulse.data.repository.ProgresionSemanalRepository
-import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionesUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
