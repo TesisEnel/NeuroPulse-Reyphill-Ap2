@@ -43,7 +43,5 @@ class SesionRespository @Inject constructor(
         } catch (e: Exception) {
             Resource.Error("Huubo un error al guardar los datos: ${e.localizedMessage}")
         }
-        sesionDao.saveSesion(sesionDto.toEntity())
-
     }
 }

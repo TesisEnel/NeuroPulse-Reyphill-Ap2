@@ -39,7 +39,6 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
-    viewModelProgresion: ProgresionSemanalViewModel = hiltViewModel(),
     navHostController: NavHostController,
     viewModel: UsuarioViewModel = hiltViewModel(),
     goToActividades: () -> Unit,

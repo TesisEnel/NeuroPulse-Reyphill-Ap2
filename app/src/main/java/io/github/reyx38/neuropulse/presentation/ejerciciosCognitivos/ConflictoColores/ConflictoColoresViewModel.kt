@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.reyx38.neuropulse.data.remote.Resource
 import io.github.reyx38.neuropulse.data.repository.AuthRepository
 import io.github.reyx38.neuropulse.data.repository.SesionJuegosRepository
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.DesvanecimientoGame.DesvanecimientoEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

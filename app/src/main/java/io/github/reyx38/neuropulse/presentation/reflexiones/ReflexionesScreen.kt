@@ -4,9 +4,7 @@ package io.github.reyx38.neuropulse.presentation.experiencia
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -141,7 +139,7 @@ fun ReflexionBodyScreen(
                 CustomEmojiSlider(
                     value = uiState.estadoReflexion ?: "feliz",
                     onValueChange = { nuevoEstado ->
-                        onEvent(ReflexionesEvent.estadoReflexion(nuevoEstado))
+                        onEvent(ReflexionesEvent.EstadoReflexion(nuevoEstado))
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -163,7 +161,7 @@ fun ReflexionBodyScreen(
 
                 NoteTextField(
                     value = uiState.descripcion ?: "",
-                    onValueChange = { onEvent(ReflexionesEvent.descripcionChange(it)) },
+                    onValueChange = { onEvent(ReflexionesEvent.DescripcionChange(it)) },
                     onDismiss = { showNoteField = false },
                     onSubmit = { onEvent(ReflexionesEvent.Save) },
                     error = uiState.error,

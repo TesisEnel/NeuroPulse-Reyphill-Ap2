@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.DesvanecimientoGame.DesvanecimientoEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

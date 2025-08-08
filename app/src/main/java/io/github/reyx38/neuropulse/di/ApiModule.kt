@@ -1,5 +1,5 @@
 package io.github.reyx38.neuropulse.di
-import com.squareup.moshi.KotlinJsonAdapterFactory
+
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -28,7 +28,7 @@ object ApiModule {
     @Singleton
     fun providesMoshi(): Moshi =
         Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
+            .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
             .build()
 
     @Provides
