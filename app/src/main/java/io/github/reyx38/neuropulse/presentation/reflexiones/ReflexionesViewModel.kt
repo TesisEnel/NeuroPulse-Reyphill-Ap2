@@ -71,9 +71,9 @@ class ReflexionesViewModel @Inject constructor(
         when (event) {
             ReflexionesEvent.New -> TODO()
             ReflexionesEvent.Save -> saveReflexion()
-            is ReflexionesEvent.descripcionChange -> onDescripcionChange(event.descripcion)
-            is ReflexionesEvent.estadoReflexion -> onEstadoChange(event.estadoReflexion)
-            is ReflexionesEvent.usuarioChange -> onUsuarioChange(event.usuarioId)
+            is ReflexionesEvent.DescripcionChange -> onDescripcionChange(event.descripcion)
+            is ReflexionesEvent.EstadoReflexion -> onEstadoChange(event.estadoReflexion)
+            is ReflexionesEvent.UsuarioChange -> onUsuarioChange(event.usuarioId)
             is ReflexionesEvent.Delete -> deleteReflexion(event.reflexionid)
         }
     }
