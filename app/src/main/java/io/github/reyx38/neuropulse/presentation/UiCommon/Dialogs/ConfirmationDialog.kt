@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -29,16 +29,12 @@ fun ConfirmationDialog(
     titulo: String? = null,
     subTitulo: String? = null,
     listaCondiciones: List<String> = emptyList(),
-    textoInferior: String? = null,
-    textoBotonConfirmacion: String? = null,
-    textoBotonDenegar: String? = null
-
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = iconoSuperior ?: Icons.Default.Help,
+                imageVector = iconoSuperior ?: Icons.AutoMirrored.Filled.Help,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(32.dp)
@@ -72,7 +68,7 @@ fun ConfirmationDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = textoInferior ?: "no disponible",
+                    text = "Tome su decision",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium
                 )
@@ -86,7 +82,7 @@ fun ConfirmationDialog(
                 )
             ) {
                 Text(
-                    text = textoBotonConfirmacion ?: "no disponible",
+                    text = "Aceptar",
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -99,7 +95,7 @@ fun ConfirmationDialog(
                 )
             ) {
                 Text(
-                    text = textoBotonDenegar ?: "no disponible",
+                    text = "Cancelar",
                     fontWeight = FontWeight.Medium
                 )
             }

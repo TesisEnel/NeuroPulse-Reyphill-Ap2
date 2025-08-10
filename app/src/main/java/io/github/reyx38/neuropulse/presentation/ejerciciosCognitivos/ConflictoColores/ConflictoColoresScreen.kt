@@ -198,10 +198,7 @@ fun ConflictoColoresScreen(
                     "• La partida quedará marcada como incompleta",
                     "• Tendrás que empezar desde el principio",
                     "• Recibiras una penalizacion por abandodar"
-                ),
-                textoInferior = "¿Seguro que deseas salir?",
-                textoBotonConfirmacion = "Sí, salir",
-                textoBotonDenegar = "Continuar jugando"
+                )
             )
         }
     }
