@@ -260,7 +260,6 @@ fun ProfileDetailScreen(
                 placeholder = "ejemplo@correo.com",
                 isError = uiState.errorEmail?.isNotEmpty() == true,
                 errorMessage = uiState.errorEmail ?: "",
-                keyboardType = KeyboardType.Email
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -381,7 +380,6 @@ fun ProfileInputField(
     isError: Boolean = false,
     errorMessage: String = "",
     enabled: Boolean = true,
-    keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
         value = value ?: "",
@@ -392,7 +390,7 @@ fun ProfileInputField(
         isError = isError,
         singleLine = true,
         enabled = enabled,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         supportingText = if (isError && errorMessage.isNotBlank()) {
             { Text(text = errorMessage, color = MaterialTheme.colorScheme.error) }
         } else null
