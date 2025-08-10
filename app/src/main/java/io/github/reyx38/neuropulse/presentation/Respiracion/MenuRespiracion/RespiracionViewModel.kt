@@ -8,7 +8,6 @@ import io.github.reyx38.neuropulse.data.remote.Resource
 import io.github.reyx38.neuropulse.data.repository.AuthRepository
 import io.github.reyx38.neuropulse.data.repository.RespiracionRepository
 import io.github.reyx38.neuropulse.data.repository.SesionRespository
-import io.github.reyx38.neuropulse.presentation.reflexiones.toDto
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
