@@ -31,7 +31,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.reyx38.neuropulse.presentation.UiCommon.NeuroDrawerScaffold
 import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
-import io.github.reyx38.neuropulse.presentation.progresionSemanal.ProgresionSemanalViewModel
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.UsuarioViewModel
 import io.github.reyx38.neuropulse.ui.theme.*
 import kotlinx.coroutines.delay
