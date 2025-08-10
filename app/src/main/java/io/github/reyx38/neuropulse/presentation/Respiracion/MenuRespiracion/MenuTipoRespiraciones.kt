@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.LineAxis
 import androidx.compose.material.icons.filled.SelfImprovement
@@ -22,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -209,7 +207,7 @@ fun AnimatedRespiracionGridCard(
     val scaleAnimationSpec = tween<Float>(
         durationMillis = 700,
         delayMillis = delayMillis,
-        easing = OvershootInterpolator(1.2f).toEasing()
+        easing = overshootInterpolator(1.2f).toEasing()
     )
 
     val alpha by animateFloatAsState(
@@ -232,7 +230,6 @@ fun AnimatedRespiracionGridCard(
 
     RespiracionGridCard(
         respiracion = respiracion,
-        onClick = {},
         goToSesion = goToSesion,
         modifier = Modifier
             .graphicsLayer {
@@ -290,7 +287,6 @@ fun getVisualForRespiracion(nombre: String?): RespiracionVisual {
 @Composable
 fun RespiracionGridCard(
     respiracion: RespiracionWithInformacion,
-    onClick: () -> Unit,
     goToSesion: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -396,7 +392,7 @@ fun AnimatedIcon(visual: RespiracionVisual) {
     }
 }
 
-fun OvershootInterpolator(tension: Float = 2f): android.view.animation.Interpolator {
+fun overshootInterpolator(tension: Float = 2f): android.view.animation.Interpolator {
     return android.view.animation.OvershootInterpolator(tension)
 }
 

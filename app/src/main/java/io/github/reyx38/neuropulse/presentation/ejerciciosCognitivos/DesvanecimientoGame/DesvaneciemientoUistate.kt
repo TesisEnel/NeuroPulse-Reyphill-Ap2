@@ -1,6 +1,5 @@
 package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.DesvanecimientoGame
 
-import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import io.github.reyx38.neuropulse.data.remote.dto.SesionJuegosDto
 
 

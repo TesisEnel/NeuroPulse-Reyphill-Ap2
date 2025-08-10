@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.DesvanecimientoGame.DesvanecimientoEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -191,10 +192,7 @@ fun SecuenciaMentalScreen(
                     "• La partida quedará marcada como incompleta",
                     "• Tendrás que empezar desde el principio",
                     "• Recibiras una penalizacion por abandodar"
-                ),
-                textoInferior = "¿Seguro que deseas salir?",
-                textoBotonConfirmacion = "Sí, salir",
-                textoBotonDenegar = "Continuar jugando"
+                )
             )
         }
     }
@@ -367,7 +365,7 @@ fun GamePlayScreen(
                                 )
                                 if (index < state.respuestaUsuario.size - 1) {
                                     Icon(
-                                        imageVector = Icons.Default.ArrowForward,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                         contentDescription = null,
                                         tint = colorScheme.primary,
                                         modifier = Modifier
@@ -390,7 +388,7 @@ fun GamePlayScreen(
                                 )
                         ) {
                             Icon(
-                                Icons.Default.Undo,
+                                Icons.AutoMirrored.Filled.Undo,
                                 contentDescription = "Deshacer último",
                                 tint = colorScheme.error
                             )

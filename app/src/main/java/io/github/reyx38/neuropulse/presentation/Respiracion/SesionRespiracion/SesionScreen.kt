@@ -12,8 +12,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -48,9 +48,8 @@ fun SesionScreen(
     }
 
     if (uiState.respiracion != null) {
-
         RespiracionSessionDialog(
-            pattern = uiState.respiracion,
+            pattern = uiState.respiracion!!,
             selectedMinutes = uiState.duracionMinutos,
             onMinutesChanged = { viewModel.onEvent(RespiracionUiEvent.DuracionMinutos(it)) },
             onDismiss = onDismiss,
@@ -69,14 +68,13 @@ fun SesionScreen(
 
 @Composable
 fun RespiracionSessionDialog(
-    pattern: RespiracionWithInformacion?,
+    pattern: RespiracionWithInformacion,
     selectedMinutes: Int,
     onMinutesChanged: (Int) -> Unit,
     onDismiss: () -> Unit,
     onStartSession: () -> Unit,
     onShowHelp: () -> Unit
 ) {
-    val visual = getVisualForRespiracion(pattern!!.respiracion.nombre)
     val durationOptions = listOf(1, 3, 5, 10, 15, 20, 30)
 
     Dialog(
@@ -134,7 +132,7 @@ fun RespiracionSessionDialog(
                                     )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Help,
+                                    imageVector = Icons.AutoMirrored.Filled.Help,
                                     contentDescription = "Ayuda",
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier.size(18.dp)
@@ -213,7 +211,7 @@ fun RespiracionSessionDialog(
                     val cycleTime = pattern.respiracion.inhalarSegundos +
                             pattern.respiracion.mantenerSegundos +
                             pattern.respiracion.exhalarSegundos
-                    val estimatedCycles = (selectedMinutes!! * 60) / cycleTime
+                    val estimatedCycles = (selectedMinutes * 60) / cycleTime
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),

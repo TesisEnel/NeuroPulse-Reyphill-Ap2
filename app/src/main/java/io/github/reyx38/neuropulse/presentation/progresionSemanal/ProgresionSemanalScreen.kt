@@ -1,10 +1,8 @@
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.background
+package io.github.reyx38.neuropulse.presentation.progresionSemanal
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,7 +23,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.remote.dto.ProgresionSemanalDto
-import io.github.reyx38.neuropulse.presentation.progresionSemanal.ProgresionSemanalViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,7 +102,6 @@ fun ProgresionSemanalScreen(
                             DropdownMenuItem(
                                 text = { Text("Exportar progreso") },
                                 onClick = {
-                                    // TODO: Implementar exportar
                                     showMenu = false
                                 },
                                 leadingIcon = {
@@ -119,7 +115,6 @@ fun ProgresionSemanalScreen(
                             DropdownMenuItem(
                                 text = { Text("Ver historial") },
                                 onClick = {
-                                    // TODO: Implementar historial
                                     showMenu = false
                                 },
                                 leadingIcon = {
@@ -169,7 +164,6 @@ fun ProgresionSemanalScreen(
                 }
                 !uiState.error.isNullOrEmpty() && uiState.progresionActual == null -> {
                     ErrorContentCompact(
-                        message = uiState.error ?: "error",
                         onRetry = { viewModel.refreshProgresion() }
                     )
                 }
@@ -194,9 +188,6 @@ fun ProgresionSemanalScreen(
             completed = uiState.progresionActual?.ejerciciosCognitivosRealizadosSemanal ?: 0,
             incomplete = uiState.progresionActual?.ejerciciosCognitivosIncompletosSemanal ?: 0,
             total = uiState.progresionActual?.ejerciciosCognitivosTotalesSemanal ?: 0,
-            icon = Icons.Outlined.Psychology,
-            color = Color(0xFF9C27B0),
-            description = "Ejercicios para fortalecer tu capacidad cognitiva y concentración",
             onDismiss = { showCognitiveDialog = false }
         )
     }
@@ -207,9 +198,6 @@ fun ProgresionSemanalScreen(
             completed = uiState.progresionActual?.ejerciciosRespiracionRealizadosSemanal ?: 0,
             incomplete = uiState.progresionActual?.ejerciciosRespiracionIncompletosSemanal ?: 0,
             total = uiState.progresionActual?.ejerciciosRespiracionTotalesSemanal ?: 0,
-            icon = Icons.Outlined.Air,
-            color = Color(0xFF00BCD4),
-            description = "Técnicas de respiración para reducir el estrés y la ansiedad",
             onDismiss = { showBreathingDialog = false }
         )
     }
@@ -568,9 +556,6 @@ private fun ExerciseDialog(
     completed: Int,
     incomplete: Int,
     total: Int,
-    icon: ImageVector,
-    color: Color,
-    description: String,
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
@@ -589,17 +574,12 @@ private fun ExerciseDialog(
                 // Icono y título
                 Box(
                     modifier = Modifier
-                        .size(60.dp)
-                        .background(
-                            color.copy(alpha = 0.15f),
-                            CircleShape
-                        ),
+                        .size(60.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = icon,
+                        imageVector = Icons.Default.Psychology,
                         contentDescription = null,
-                        tint = color,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -629,7 +609,6 @@ private fun ExerciseDialog(
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
-                        color = color
                     )
 
                     val progress = if (total > 0) completed.toFloat() / total else 0f
@@ -639,8 +618,7 @@ private fun ExerciseDialog(
                             .fillMaxWidth()
                             .height(8.dp)
                             .clip(RoundedCornerShape(4.dp)),
-                        color = color,
-                        trackColor = color.copy(alpha = 0.2f)
+
                     )
 
                     val percentage = (progress * 100).toInt()
@@ -735,20 +713,11 @@ private fun ExerciseDialog(
                     }
                 }
 
-                // Descripción
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    textAlign = TextAlign.Center
-                )
-
                 // Botón cerrar
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = color
                     )
                 ) {
                     Text("Entendido")
@@ -822,7 +791,6 @@ private fun LoadingContentCompact() {
 
 @Composable
 private fun ErrorContentCompact(
-    message: String,
     onRetry: () -> Unit
 ) {
     Box(

@@ -1,6 +1,5 @@
 package io.github.reyx38.neuropulse.presentation.progresionSemanal
 
-import io.github.reyx38.neuropulse.data.local.entities.ProgresionSemanalEntity
 import io.github.reyx38.neuropulse.data.remote.dto.ProgresionSemanalDto
 
 sealed class ProgresionSemanalEvent {

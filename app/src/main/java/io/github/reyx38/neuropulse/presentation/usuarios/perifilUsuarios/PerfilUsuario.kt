@@ -26,6 +26,8 @@ import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.Opcione
 import kotlin.io.encoding.ExperimentalEncodingApi
 import android.util.Base64
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.sp
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
@@ -149,7 +151,7 @@ fun MainProfileScreen(
             )
 
             ProfileMenuItem(
-                icon = Icons.Default.ExitToApp,
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
                 title = "Cerrar sesion",
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -164,15 +166,12 @@ fun MainProfileScreen(
                         onNavigateLogin()
                     },
                     onDismiss = { showLogoutDialog = false },
-                    iconoSuperior = Icons.Default.ExitToApp,
+                    iconoSuperior = Icons.AutoMirrored.Filled.ExitToApp,
                     titulo = "Cerrar sesion",
                     subTitulo = "¿Estás seguro de que deseas cerrar sesión?",
                     listaCondiciones = listOf(
                         "• No podra volver a iniciar sesion sin internet",
-                    ),
-                    textoInferior = "¿Seguro que desea cerrar sesion?",
-                    textoBotonConfirmacion = "Si, cerrar ",
-                    textoBotonDenegar = "No, mantener"
+                    )
                 )
             }
         }
@@ -297,7 +296,7 @@ fun ProfileMenuItem(
             }
 
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Navigate",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)

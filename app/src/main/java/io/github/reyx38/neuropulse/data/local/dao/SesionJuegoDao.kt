@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import io.github.reyx38.neuropulse.data.local.entities.SesionJuegoEntity
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SesionJuegoDao {

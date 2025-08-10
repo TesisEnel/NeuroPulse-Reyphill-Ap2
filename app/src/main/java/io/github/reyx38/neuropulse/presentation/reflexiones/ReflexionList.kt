@@ -35,8 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import io.github.reyx38.neuropulse.data.remote.dto.ReflexionDto
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
-import java.text.SimpleDateFormat
-import java.util.*
+
 
 @Composable
 fun ReflexionListScreen(
@@ -443,7 +442,7 @@ fun ReflexionItem(
             if (showDialogDelete) {
                 ConfirmationDialog(
                     onConfirm = {
-                        onDelete(reflexion?.reflexionId);
+                        onDelete(reflexion?.reflexionId)
                         showDialogDelete = false
                     },
                     onDismiss = {
@@ -456,9 +455,6 @@ fun ReflexionItem(
                         "• Se eliminara permenentemente",
                         "• Se eliminara de tu evaluzacion semanal",
                     ),
-                    textoInferior = "¿Seguro que desea eliminarla?",
-                    textoBotonConfirmacion = "Si, eliminar",
-                    textoBotonDenegar = "Cancelar"
                 )
             }
 

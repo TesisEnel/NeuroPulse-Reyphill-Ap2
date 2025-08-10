@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddTask
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
@@ -65,15 +65,12 @@ fun BreathingCircle(
     val isRunning by viewModel.isRunning.collectAsState()
     val remainingTimeMs by viewModel.remainingTimeMs.collectAsState()
 
-    // Estado para controlar el diálogo de confirmación
     var showExitDialog by remember { mutableStateOf(false) }
 
-    // Interceptar el botón de retroceso del sistema
     BackHandler {
         showExitDialog = true
     }
 
-    // Crear fases solo para las que tienen duración > 0
     val phases = buildList {
         if (pattern.respiracion!!.respiracion.inhalarSegundos > 0) {
             add(
@@ -143,7 +140,7 @@ fun BreathingCircle(
         ) {
             IconButton(onClick = { handleExit() }) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Volver",
                     tint = MaterialTheme.colorScheme.onBackground
                 )
@@ -198,7 +195,7 @@ fun BreathingCircle(
                 )
 
                 Text(
-                    text = pattern.estado ?: "Detenido",
+                    text = pattern.estado,
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                     fontWeight = FontWeight.Light
@@ -365,9 +362,6 @@ fun BreathingCircle(
                 "• Se agregara a tu historial de respiracion",
                 "• La sesión quedará marcada como completa",
             ),
-            textoInferior = getFrase(),
-            textoBotonConfirmacion = "Continuar",
-            textoBotonDenegar = "Repetir sesion"
         )
 
     }
@@ -394,9 +388,6 @@ fun BreathingCircle(
                 "• La sesión quedará marcada como incompleta",
                 "• La sesion respiración se detendrá automáticamente"
             ),
-            textoInferior = "¿Seguro que desea salir?",
-            textoBotonConfirmacion = "Si, salir",
-            textoBotonDenegar = "Continuar sesion"
         )
     }
 }

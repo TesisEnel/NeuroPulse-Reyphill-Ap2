@@ -3,7 +3,6 @@ package io.github.reyx38.neuropulse.data.repository
 import io.github.reyx38.neuropulse.data.local.Mappers.toDto
 import io.github.reyx38.neuropulse.data.local.Mappers.toEntity
 import io.github.reyx38.neuropulse.data.local.dao.ProgresionSemanalDao
-import io.github.reyx38.neuropulse.data.local.entities.RespiracionWithInformacion
 import io.github.reyx38.neuropulse.data.remote.NeuroPulseApi
 import io.github.reyx38.neuropulse.data.remote.Resource
 import io.github.reyx38.neuropulse.data.remote.dto.ProgresionSemanalDto

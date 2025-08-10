@@ -68,8 +68,8 @@ class RespiracionViewModel @Inject constructor(
             is RespiracionUiEvent.RespiracionChange -> onChangeRespiracion(event.respiracionId)
             is RespiracionUiEvent.UsuarioChange -> onChangeUsuario(event.usuarioId)
             is RespiracionUiEvent.EstadoChange -> onChangeEstado(event.estado)
-            RespiracionUiEvent.New -> {}
             RespiracionUiEvent.Save -> save()
+            RespiracionUiEvent.New -> resetSesion()
         }
     }
 

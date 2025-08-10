@@ -1,6 +1,5 @@
 package io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.LogicaSombra
 
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.DesvanecimientoGame.DesvanecimientoEvent
 
 sealed interface LogicaSombraEvent {
     data class EjercicioCognitivoChange (val ejercicio: Int) : LogicaSombraEvent
