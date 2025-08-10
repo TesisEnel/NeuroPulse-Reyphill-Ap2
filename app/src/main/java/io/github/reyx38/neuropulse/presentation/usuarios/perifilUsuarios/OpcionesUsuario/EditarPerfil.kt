@@ -172,7 +172,7 @@ fun ProfileDetailScreen(
                                 modifier = Modifier.size(32.dp)
                             )
                         } else {
-                            if (!uiState.imagen.isNullOrEmpty()) {
+                            if (uiState.imagen.isNotEmpty()) {
                                 val imageBytes =
                                     Base64.decode(uiState.imagen, Base64.DEFAULT)
                                 val bitmap = remember(uiState.imagen) {

@@ -455,9 +455,6 @@ fun ReflexionItem(
                         "• Se eliminara permenentemente",
                         "• Se eliminara de tu evaluzacion semanal",
                     ),
-                    textoInferior = "¿Seguro que desea eliminarla?",
-                    textoBotonConfirmacion = "Si, eliminar",
-                    textoBotonDenegar = "Cancelar"
                 )
             }
 

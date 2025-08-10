@@ -164,5 +164,4 @@ class LoginViewModel @Inject constructor(
         return true
     }
 
-
 }

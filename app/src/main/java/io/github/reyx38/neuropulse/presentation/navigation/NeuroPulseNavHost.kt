@@ -1,6 +1,5 @@
 package io.github.reyx38.neuropulse.presentation.navigation
 
-import ProgresionSemanalScreen
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -21,6 +20,7 @@ import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.LogicaSombr
 import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.SecuenciaMental.SecuenciaMentalScreen
 import io.github.reyx38.neuropulse.presentation.experiencia.ReflexionScreen
 import io.github.reyx38.neuropulse.presentation.home.Home
+import io.github.reyx38.neuropulse.presentation.progresionSemanal.ProgresionSemanalScreen
 import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionListScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.auth.login.LoginScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.auth.register.RegistarScreen
