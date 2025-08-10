@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.reyx38.neuropulse.data.local.enum.EstadosRespiracion
@@ -32,8 +31,9 @@ import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.Resp
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionUiState
 import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
 import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
+import io.github.reyx38.neuropulse.presentation.UiCommon.RespiracionUtils.construirFases
+import io.github.reyx38.neuropulse.presentation.UiCommon.RespiracionUtils.obtenerFasesActuales
 import io.github.reyx38.neuropulse.presentation.UiCommon.TimerUtils.formatTimeMs
-import io.github.reyx38.neuropulse.presentation.UiCommon.getFrase
 
 @Composable
 fun RespiracionScreen(
@@ -41,6 +41,12 @@ fun RespiracionScreen(
     goBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.respiracion) {
+        uiState.respiracion?.let {
+            viewModel.onEvent(RespiracionUiEvent.DuracionMinutos(uiState.duracionMinutos))
+        }
+    }
 
     uiState.respiracion?.let {
         BreathingCircle(
@@ -64,51 +70,14 @@ fun BreathingCircle(
     val currentPhase by viewModel.currentPhase.collectAsState()
     val isRunning by viewModel.isRunning.collectAsState()
     val remainingTimeMs by viewModel.remainingTimeMs.collectAsState()
-
     var showExitDialog by remember { mutableStateOf(false) }
+
+    val phases = construirFases(pattern, MaterialTheme.colorScheme)
+    val currentPhaseData = obtenerFasesActuales(phases, currentPhase)
 
     BackHandler {
         showExitDialog = true
     }
-
-    val phases = buildList {
-        if (pattern.respiracion!!.respiracion.inhalarSegundos > 0) {
-            add(
-                BreathingPhase(
-                    "Inhala",
-                    pattern.respiracion.respiracion.inhalarSegundos * 1000L,
-                    MaterialTheme.colorScheme.tertiary
-                )
-            )
-        }
-        if (pattern.respiracion.respiracion.mantenerSegundos > 0) {
-            add(
-                BreathingPhase(
-                    "Mantén",
-                    pattern.respiracion.respiracion.mantenerSegundos * 1000L,
-                    MaterialTheme.colorScheme.secondary
-                )
-            )
-        }
-        if (pattern.respiracion.respiracion.exhalarSegundos > 0) {
-            add(
-                BreathingPhase(
-                    "Exhala",
-                    pattern.respiracion.respiracion.exhalarSegundos * 1000L,
-                    MaterialTheme.colorScheme.primary
-                )
-            )
-        }
-    }
-
-    val currentPhaseData = phases.find { phase ->
-        when (currentPhase) {
-            EstadosRespiracion.INHALING -> phase.name == "Inhala"
-            EstadosRespiracion.HOLDING -> phase.name == "Mantén"
-            EstadosRespiracion.EXHALING -> phase.name == "Exhala"
-        }
-    } ?: phases.firstOrNull() ?: BreathingPhase("Detenido", 0L, Color.Gray)
-
 
     fun handleExit() {
         if (isRunning || remainingTimeMs > 0) {
@@ -118,14 +87,6 @@ fun BreathingCircle(
         }
     }
 
-    // Inicializar la sesión cuando se carga la composable
-    LaunchedEffect(pattern.respiracion) {
-        pattern.respiracion?.let {
-            if (pattern.duracionMinutos > 0) {
-                onEvent(RespiracionUiEvent.DuracionMinutos(pattern.duracionMinutos))
-            }
-        }
-    }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -160,48 +121,8 @@ fun BreathingCircle(
 
             Spacer(modifier = Modifier.width(48.dp))
         }
-
-        Card(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Tiempo Restante",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = formatTimeMs(remainingTimeMs),
-                    fontSize = 28.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    text = pattern.estado,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                    fontWeight = FontWeight.Light
-                )
-            }
-        }
+        
+        TiempoRestanteCard(remainingTimeMs, pattern.estado)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -345,7 +266,7 @@ fun BreathingCircle(
         Spacer(modifier = Modifier.height(16.dp))
     }
 
-    if (remainingTimeMs <= 0L && !isRunning ){
+    if (remainingTimeMs <= 0L && !isRunning) {
         ConfirmationDialog(
             onConfirm = {
                 onEvent(RespiracionUiEvent.EstadoChange("completo"))
@@ -389,6 +310,25 @@ fun BreathingCircle(
                 "• La sesion respiración se detendrá automáticamente"
             ),
         )
+    }
+}
+
+@Composable
+fun TiempoRestanteCard(remainingTimeMs: Long, estado: String) {
+    Card(
+        modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Tiempo Restante", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Spacer(Modifier.height(4.dp))
+            Text(formatTimeMs(remainingTimeMs), fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(estado, fontSize = 12.sp, fontWeight = FontWeight.Light)
+        }
     }
 }
 
