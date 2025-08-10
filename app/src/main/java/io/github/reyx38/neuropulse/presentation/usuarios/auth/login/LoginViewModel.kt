@@ -124,17 +124,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun cerraSesion() {
-        viewModelScope.launch {
-            authRepository.cerrarSesion()
-            _uiState.update {
-                it.copy(
-                    user = null
-                )
-            }
-        }
-    }
-
     private fun validar(): Boolean {
         if (_uiState.value.nombre.isEmpty()) {
             _uiState.update {
