@@ -23,7 +23,7 @@ class SesionJuegosRepository@Inject constructor(
         try {
             val remote = remoteDataSource.getSesionesJuegos(usuarioId)
 
-            if (!remote.isEmpty())
+            if (remote.isNotEmpty())
                 sesionJuegoDao.deleteAllSesiones(usuarioId)
             remote.forEach { sesionJuegoDao.saveSesionJuego(it.toEntity()) }
 
