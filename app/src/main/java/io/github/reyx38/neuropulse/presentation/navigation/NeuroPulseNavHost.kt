@@ -8,20 +8,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.MenuSessionRespiracion
-import io.github.reyx38.neuropulse.presentation.Respiracion.MenuRespiracion.RespiracionViewModel
-import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.RespiracionScreen
-import io.github.reyx38.neuropulse.presentation.Respiracion.SesionRespiracion.SesionesRespiracionScreen
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.CatalogoEjercicios.EjerciciosCognitivosScreen
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.ConflictoColores.ConflictoColoresScreen
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.DesvanecimientoGame.DesvanecimientoScreen
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.HistorialEjercicios.HistorialEjerciciosScreen
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.LogicaSombra.LogicaSombraScreen
-import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.SecuenciaMental.SecuenciaMentalScreen
-import io.github.reyx38.neuropulse.presentation.experiencia.ReflexionScreen
+import io.github.reyx38.neuropulse.presentation.respiracion.menuRespiracion.MenuSessionRespiracion
+import io.github.reyx38.neuropulse.presentation.respiracion.menuRespiracion.RespiracionViewModel
+import io.github.reyx38.neuropulse.presentation.respiracion.sesionRespiracion.RespiracionScreen
+import io.github.reyx38.neuropulse.presentation.respiracion.sesionRespiracion.SesionesRespiracionScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.catalogoEjercicios.EjerciciosCognitivosScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.conflictoColores.ConflictoColoresScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.desvanecimientoGame.DesvanecimientoScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.historialEjercicios.HistorialEjerciciosScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.logicaSombra.LogicaSombraScreen
+import io.github.reyx38.neuropulse.presentation.ejerciciosCognitivos.secuenciaMental.SecuenciaMentalScreen
 import io.github.reyx38.neuropulse.presentation.home.Home
 import io.github.reyx38.neuropulse.presentation.progresionSemanal.ProgresionSemanalScreen
 import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionListScreen
+import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.auth.login.LoginScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.auth.register.RegistarScreen
 import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.ProfileScreen
@@ -231,11 +231,9 @@ fun NeuroPulseNavHost(
             val usuarioId = it.toRoute<Screen.ProgresionSemanal>().usuarioId
             ProgresionSemanalScreen(
                 usuarioId = usuarioId,
-
                 goBack = {
                     navHostController.navigateUp()
                 }
-
             )
         }
     }

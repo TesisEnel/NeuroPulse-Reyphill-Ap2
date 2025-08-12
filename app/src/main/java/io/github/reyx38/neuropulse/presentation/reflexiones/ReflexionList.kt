@@ -34,7 +34,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.data.local.entities.UserEntity
 import io.github.reyx38.neuropulse.data.remote.dto.ReflexionDto
-import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
+import io.github.reyx38.neuropulse.presentation.uiCommon.dialogs.ConfirmationDialog
+import io.github.reyx38.neuropulse.presentation.uiCommon.reflexionesUtils.getEmojiByEstado
 
 
 @Composable
@@ -352,8 +353,7 @@ fun ReflexionItem(
                     )
 
                     Text(
-                        text = reflexion?.estadoReflexion?.replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase() else it.toString()
+                        text = reflexion?.estadoReflexion?.replaceFirstChar { it.toUpperCase()
                         } ?: "Normal",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp
@@ -528,16 +528,6 @@ fun ReflexionItem(
                 }
             }
         }
-    }
-}
-
-fun getEmojiByEstado(estado: String): String {
-    return when (estado.lowercase()) {
-        "feliz" -> "😊"
-        "triste" -> "😢"
-        "enojado" -> "😠"
-        "normal" -> "😐"
-        else -> "😐"
     }
 }
 

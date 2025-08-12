@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.reyx38.neuropulse.R
-import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.OpcionesUsuario.ProfileDetailScreen
+import io.github.reyx38.neuropulse.presentation.usuarios.perifilUsuarios.opcionesUsuario.ProfileDetailScreen
 import kotlin.io.encoding.ExperimentalEncodingApi
 import android.util.Base64
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -30,7 +30,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.sp
-import io.github.reyx38.neuropulse.presentation.UiCommon.Dialogs.ConfirmationDialog
+import io.github.reyx38.neuropulse.presentation.uiCommon.dialogs.ConfirmationDialog
 
 @Composable
 fun ProfileScreen(

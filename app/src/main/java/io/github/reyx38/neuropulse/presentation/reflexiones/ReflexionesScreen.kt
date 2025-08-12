@@ -1,15 +1,14 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package io.github.reyx38.neuropulse.presentation.experiencia
+package io.github.reyx38.neuropulse.presentation.reflexiones
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,9 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionesEvent
-import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionesUiState
-import io.github.reyx38.neuropulse.presentation.reflexiones.ReflexionesViewModel
+import io.github.reyx38.neuropulse.presentation.uiCommon.reflexionesUtils.getEmojiByEstado
 import kotlin.math.round
 
 @Composable
@@ -34,11 +31,10 @@ fun ReflexionScreen(
     reflexionId: Int? = 0,
     goToBack: () -> Unit
 ) {
-
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(reflexionId) {
         reflexionId.let {
-            if (it != 0){
+            if (it != 0) {
                 viewmodel.findReflexion(reflexionId)
             }
         }
@@ -49,9 +45,7 @@ fun ReflexionScreen(
         viewmodel::onEvent,
         goToBack
     )
-
 }
-
 
 @Composable
 fun ReflexionBodyScreen(
@@ -59,7 +53,6 @@ fun ReflexionBodyScreen(
     onEvent: (ReflexionesEvent) -> Unit,
     goToBack: () -> Unit
 ) {
-
     var showNoteField by remember { mutableStateOf(false) }
 
     Column(
@@ -72,17 +65,8 @@ fun ReflexionBodyScreen(
             navigationIcon = {
                 IconButton(onClick = { goToBack() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            },
-            actions = {
-                IconButton(onClick = { /* Handle info */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Info",
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -112,13 +96,7 @@ fun ReflexionBodyScreen(
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
-                text = when (uiState.estadoReflexion) {
-                    "triste" -> "😢"
-                    "normal" -> "😐"
-                    "feliz" -> "😊"
-                    "enojado" -> "😠"
-                    else -> "😊"
-                },
+                text = getEmojiByEstado(uiState.estadoReflexion ?: ""),
                 fontSize = 100.sp,
                 textAlign = TextAlign.Center
             )
@@ -163,8 +141,10 @@ fun ReflexionBodyScreen(
                     value = uiState.descripcion ?: "",
                     onValueChange = { onEvent(ReflexionesEvent.DescripcionChange(it)) },
                     onDismiss = { showNoteField = false },
-                    onSubmit = { onEvent(ReflexionesEvent.Save) },
-                    error = uiState.error,
+                    onSubmit = {
+                        onEvent(ReflexionesEvent.Save);
+                        goToBack
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -180,18 +160,9 @@ fun NoteTextField(
     onValueChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onSubmit: () -> Unit,
-    error: String?,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        error?.let {
-            Text(
-                text = it,
-                color = if (it.contains("correctamente", ignoreCase = true)) Color(0xFF4CAF50) else Color.Red,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
-            )
-        }
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -256,9 +227,8 @@ fun NoteTextField(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botón de guardar mejorado
         Button(
-            onClick = onSubmit,
+            onClick = { onSubmit },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
@@ -271,7 +241,7 @@ fun NoteTextField(
             )
         ) {
             Icon(
-                Icons.Default.Send,
+                Icons.AutoMirrored.Filled.Send,
                 contentDescription = "Guardar",
                 modifier = Modifier.size(20.dp)
             )
