@@ -84,9 +84,4 @@ class EjerciciosViewModel @Inject constructor(
         }
     }
 
-    fun recargarSesiones(usuarioId: Int) {
-        getSesiones(usuarioId)
-    }
-
-
 }

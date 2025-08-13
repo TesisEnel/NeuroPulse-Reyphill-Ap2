@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -283,13 +284,13 @@ fun ProgressIndicator(
         Spacer(modifier = Modifier.height(4.dp))
 
         LinearProgressIndicator(
-            progress = progress,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp)),
-            color = colorScheme.primary,
-            trackColor = colorScheme.primary.copy(alpha = 0.2f)
+        progress = { progress },
+        modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp)),
+        color = colorScheme.primary,
+        trackColor = colorScheme.primary.copy(alpha = 0.2f),
         )
     }
 }
