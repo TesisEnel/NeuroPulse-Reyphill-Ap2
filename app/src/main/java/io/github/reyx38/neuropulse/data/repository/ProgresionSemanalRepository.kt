@@ -23,7 +23,7 @@ class ProgresionSemanalRepository @Inject constructor(
             try {
                 val listaDto = api.getHistorialProgresionSemanal(usuariId)
 
-                if (!listaDto.isEmpty())
+                if (listaDto.isNotEmpty())
                     dao.deleteAll()
 
                 val progresionSemanal = listaDto.map { it.toEntity() }

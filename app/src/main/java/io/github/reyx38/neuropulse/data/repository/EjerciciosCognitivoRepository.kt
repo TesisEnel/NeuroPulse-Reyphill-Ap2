@@ -21,7 +21,7 @@ class EjerciciosCognitivoRepository @Inject constructor(
             try {
                 val listaDto = remoteDataSource.getEjerciciosCognitivos()
 
-                if (!listaDto.isEmpty()) {
+                if (listaDto.isNotEmpty()) {
                     ejercicioCognitivoDao.deleteAllEjercicios()
                     val ejerciciosCognitivos = listaDto.map { it.toEntity() }
                     ejercicioCognitivoDao.saveEjerciciosCognitivos(ejerciciosCognitivos)
