@@ -353,7 +353,8 @@ fun ReflexionItem(
                     )
 
                     Text(
-                        text = reflexion?.estadoReflexion?.replaceFirstChar { it.toUpperCase()
+                        text = reflexion?.estadoReflexion?.replaceFirstChar {
+                           it.uppercaseChar()
                         } ?: "Normal",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp

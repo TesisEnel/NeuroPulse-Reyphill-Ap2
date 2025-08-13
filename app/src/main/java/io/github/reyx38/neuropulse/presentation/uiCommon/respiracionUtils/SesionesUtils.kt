@@ -19,13 +19,6 @@ class BreathingSessionManager {
         val onInvalidConfiguration: () -> Unit
     )
 
-    data class SessionState(
-        val isRunning: Boolean,
-        val currentPhase: EstadosRespiracion,
-        val progress: Float,
-        val remainingTimeMs: Long
-    )
-
     fun initializeSession(durationMinutes: Int) {
         totalTimeMs = minutesToMs(durationMinutes)
         timerState = timerState.reset()
@@ -44,19 +37,6 @@ class BreathingSessionManager {
         totalTimeMs = 0L
     }
 
-    fun getCurrentSessionState(): SessionState {
-        return SessionState(
-            isRunning = false, // Se actualiza externamente
-            currentPhase = EstadosRespiracion.INHALING, // Se actualiza durante el ciclo
-            progress = 0f, // Se calcula durante el ciclo
-            remainingTimeMs = calculateRemainingTime(timerState.elapsedTimeMs, totalTimeMs)
-        )
-    }
-
-    /**
-     * Ejecuta un ciclo completo de respiración
-     * Devuelve true si debe continuar, false si debe terminar
-     */
     suspend fun executeBreathingCycle(
         respiracion: RespiracionWithInformacion,
         isRunning: MutableStateFlow<Boolean>,
