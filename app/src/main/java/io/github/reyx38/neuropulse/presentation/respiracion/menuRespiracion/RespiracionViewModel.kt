@@ -8,8 +8,9 @@ import io.github.reyx38.neuropulse.data.remote.Resource
 import io.github.reyx38.neuropulse.data.repository.AuthRepository
 import io.github.reyx38.neuropulse.data.repository.RespiracionRepository
 import io.github.reyx38.neuropulse.data.repository.SesionRespository
+import io.github.reyx38.neuropulse.presentation.uiCommon.respiracionUtils.BreathingSessionManager
+import io.github.reyx38.neuropulse.presentation.uiCommon.timerUtils.msToMinutes
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,260 +37,184 @@ class RespiracionViewModel @Inject constructor(
     private val _remainingTimeMs = MutableStateFlow(0L)
     val remainingTimeMs = _remainingTimeMs.asStateFlow()
 
-    private var totalTimeMs = 0L
+    // ✅ Un solo manager para toda la sesión
+    private val sessionManager = BreathingSessionManager()
     private var breathingJob: Job? = null
-    private var currentPhaseStartTime = 0L
-    private var totalStartTime = 0L
-    private var pausedTimeMs = 0L
+
+    // ✅ Callbacks para el SessionManager
+    private val sessionCallbacks = BreathingSessionManager.SessionCallbacks(
+        onProgressUpdate = { _progress.value = it },
+        onPhaseChange = { _currentPhase.value = it },
+        onRemainingTimeUpdate = { _remainingTimeMs.value = it },
+        onSessionComplete = { finalizarSesion() },
+        onInvalidConfiguration = { handleInvalidConfiguration() }
+    )
 
     init {
         cargarRespiraciones()
         getUsuario()
     }
 
-    fun getUsuario() {
-        viewModelScope.launch {
-            val user = authRepository.getUsuario()
-            if (user!!.usuarioId != null) {
-                _uiState.update {
-                    it.copy(
-                        usuarioId = user.usuarioId,
-                        user = user,
-                    )
-                }
-            }
+    fun getUsuario() = viewModelScope.launch {
+        authRepository.getUsuario()?.usuarioId?.let { userId ->
+            _uiState.update { it.copy(usuarioId = userId, user = authRepository.getUsuario()) }
         }
     }
 
     fun onEvent(event: RespiracionUiEvent) {
         when (event) {
-            is RespiracionUiEvent.DuracionMinutos -> onChangeMinutos(event.minutos)
-            is RespiracionUiEvent.RespiracionChange -> onChangeRespiracion(event.respiracionId)
-            is RespiracionUiEvent.UsuarioChange -> onChangeUsuario(event.usuarioId)
-            is RespiracionUiEvent.EstadoChange -> onChangeEstado(event.estado)
+            is RespiracionUiEvent.DuracionMinutos -> setDuration(event.minutos)
+            is RespiracionUiEvent.RespiracionChange -> setRespiracion(event.respiracionId)
+            is RespiracionUiEvent.UsuarioChange -> setUsuario(event.usuarioId)
+            is RespiracionUiEvent.EstadoChange -> setEstado(event.estado)
             RespiracionUiEvent.Save -> save()
             RespiracionUiEvent.New -> resetSesion()
         }
     }
 
-    private fun onChangeUsuario(usuarioId: Int) {
-        _uiState.update { it.copy(usuarioId = usuarioId) }
-    }
-    private fun onChangeEstado(estado: String) {
-        _uiState.update { it.copy(estado = estado) }
-    }
-    private fun onChangeRespiracion(respiracionId: Int) {
-        _uiState.update { it.copy(respiracionId = respiracionId) }
-    }
+    private fun setUsuario(usuarioId: Int) = _uiState.update { it.copy(usuarioId = usuarioId) }
+    private fun setEstado(estado: String) = _uiState.update { it.copy(estado = estado) }
+    private fun setRespiracion(respiracionId: Int) = _uiState.update { it.copy(respiracionId = respiracionId) }
 
-    private fun onChangeMinutos(minutos: Int) {
-        totalTimeMs = minutos * 60 * 1000L
-        _remainingTimeMs.value = totalTimeMs
+    private fun setDuration(minutos: Int) {
+        sessionManager.initializeSession(minutos) // ✅ SessionManager maneja la inicialización
+        _remainingTimeMs.value = sessionManager.getRemainingTime()
         _uiState.update { it.copy(duracionMinutos = minutos) }
     }
 
     private fun initializeTotalTime() {
         val minutos = _uiState.value.duracionMinutos
         if (minutos > 0) {
-            totalTimeMs = minutos * 60 * 1000L
-            _remainingTimeMs.value = totalTimeMs
+            setDuration(minutos)
         }
     }
 
-    fun buscarRespiracion(respiracionId: Int) {
-        viewModelScope.launch {
-            if (respiracionId > 0) {
-                val respiracion = repository.find(respiracionId)
-                _uiState.update {
-                    it.copy(respiracion = respiracion)
-                }
-                initializeTotalTime()
+    fun buscarRespiracion(respiracionId: Int) = viewModelScope.launch {
+        val respiracion = repository.find(respiracionId)
+        _uiState.update { it.copy(respiracion = respiracion) }
+        initializeTotalTime()
+    }
+
+    fun cargarRespiraciones() = viewModelScope.launch {
+        loadRespiracionesFromRepositoryOrSync()
+    }
+
+    private suspend fun loadRespiracionesFromRepositoryOrSync() {
+        val list = repository.obtenerRespiraciones()
+        if (list.isNotEmpty()) {
+            _uiState.update { it.copy(respiraciones = list) }
+        } else {
+            syncRespiracionesFromApi()
+        }
+    }
+
+    private suspend fun syncRespiracionesFromApi() {
+        repository.sincronizarRespiracionesDesdeApi().collect { resultado ->
+            val currentState = _uiState.value
+            val newState = when (resultado) {
+                is Resource.Loading -> currentState.copy(isLoading = true, error = null)
+                is Resource.Success -> currentState.copy(
+                    isLoading = false,
+                    respiraciones = resultado.data ?: emptyList(),
+                    error = null
+                )
+                is Resource.Error -> currentState.copy(
+                    isLoading = false,
+                    error = resultado.message ?: "Error desconocido"
+                )
             }
+            _uiState.value = newState
         }
     }
 
-    fun cargarRespiraciones() {
-        viewModelScope.launch {
-            val list = repository.obtenerRespiraciones()
-            if (list.isNotEmpty()) {
-                _uiState.update { it.copy(respiraciones = list) }
-            } else {
-                repository.sincronizarRespiracionesDesdeApi().collect { resultado ->
-                    when (resultado) {
-                        is Resource.Loading -> _uiState.update {
-                            it.copy(
-                                isLoading = true,
-                                error = null
-                            )
-                        }
-
-                        is Resource.Success -> _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                respiraciones = resultado.data ?: emptyList(),
-                                error = null
-                            )
-                        }
-
-                        is Resource.Error -> _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                error = resultado.message ?: "Error desconocido"
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // Ya no necesitamos esta función
+    // private fun updateStateFromResource...
 
     fun togglePlayPause() {
-        // Asegurar que el tiempo total esté inicializado
-        if (totalTimeMs == 0L) {
-            initializeTotalTime()
-        }
+        if (sessionManager.getTotalTime() == 0L) initializeTotalTime()
 
-        val newState = !_isRunning.value
-        _isRunning.value = newState
+        _isRunning.value = !_isRunning.value
 
-        _uiState.update {
-            it.copy(estado = if (newState) "En progreso" else "Pausado")
-        }
-
-        if (newState) {
-            startBreathingCycle()
+        if (_isRunning.value) {
+            startOrResumeSession()
         } else {
-            breathingJob?.cancel()
+            pauseSession()
         }
+    }
+
+    private fun startOrResumeSession() {
+        if (sessionManager.getElapsedTime() == 0L) {
+            sessionManager.startSession()
+        } else {
+            sessionManager.resumeSession()
+        }
+
+        _uiState.update { it.copy(estado = "En progreso") }
+        executeBreathingSession()
+    }
+
+    private fun pauseSession() {
+        breathingJob?.cancel()
+        _uiState.update { it.copy(estado = "Pausado") }
     }
 
     fun resetSesion() {
         breathingJob?.cancel()
+        sessionManager.resetSession() // ✅ SessionManager maneja el reset
+        resetUIStates()
+    }
+
+    private fun resetUIStates() {
         _isRunning.value = false
         _progress.value = 0f
         _currentPhase.value = EstadosRespiracion.INHALING
-        pausedTimeMs = 0L
-        currentPhaseStartTime = 0L
-        totalStartTime = 0L
-
-        // Reinicializar el tiempo total
         initializeTotalTime()
-
         _uiState.update {
-            it.copy(estado = "Detenido", duracionMinutos = (totalTimeMs / 60000).toInt())
+            it.copy(estado = "Detenido", duracionMinutos = msToMinutes(sessionManager.getTotalTime()))
         }
     }
 
-    private fun startBreathingCycle() {
+    private fun executeBreathingSession() {
         breathingJob?.cancel()
 
+        val respiracion = _uiState.value.respiracion ?: return
+
         breathingJob = viewModelScope.launch {
-            val respiracion = _uiState.value.respiracion?.respiracion ?: return@launch
-
-            // Crear lista de fases válidas
-            val fases = buildList {
-                if (respiracion.inhalarSegundos > 0) {
-                    add(EstadosRespiracion.INHALING to respiracion.inhalarSegundos * 1000L)
-                }
-                if (respiracion.mantenerSegundos > 0) {
-                    add(EstadosRespiracion.HOLDING to respiracion.mantenerSegundos * 1000L)
-                }
-                if (respiracion.exhalarSegundos > 0) {
-                    add(EstadosRespiracion.EXHALING to respiracion.exhalarSegundos * 1000L)
-                }
-            }
-
-            if (fases.isEmpty()) {
-                _uiState.update { it.copy(estado = "Configuración inválida") }
-                _isRunning.value = false
-                return@launch
-            }
-
-            // Si es la primera vez, inicializar tiempos
-            if (totalStartTime == 0L) {
-                totalStartTime = System.currentTimeMillis()
-                currentPhaseStartTime = totalStartTime
-            } else {
-                // Si se reanuda, ajustar el tiempo de inicio
-                val pauseDuration = System.currentTimeMillis() - pausedTimeMs
-                totalStartTime += pauseDuration
-                currentPhaseStartTime += pauseDuration
-            }
-
-            var currentPhaseIndex = fases.indexOfFirst { it.first == _currentPhase.value }
-            if (currentPhaseIndex == -1) currentPhaseIndex = 0
-
-            while (_isRunning.value && _remainingTimeMs.value > 0L) {
-                val (fase, duracionMs) = fases[currentPhaseIndex]
-                _currentPhase.value = fase
-
-                // Si es una nueva fase, reiniciar el tiempo de inicio de la fase
-                if (System.currentTimeMillis() - currentPhaseStartTime >= duracionMs) {
-                    currentPhaseStartTime = System.currentTimeMillis()
-                }
-
-                var phaseCompleted = false
-
-                while (_isRunning.value && !phaseCompleted && _remainingTimeMs.value > 0L) {
-                    val currentTime = System.currentTimeMillis()
-                    val elapsedInPhase = currentTime - currentPhaseStartTime
-                    val totalElapsed = currentTime - totalStartTime
-
-                    // Actualizar progreso de la fase actual
-                    _progress.value = (elapsedInPhase.toFloat() / duracionMs).coerceIn(0f, 1f)
-
-                    // Actualizar tiempo restante total
-                    val remaining = (totalTimeMs - totalElapsed).coerceAtLeast(0L)
-                    _remainingTimeMs.value = remaining
-
-                    // Completar fase si se alcanza la duración
-                    if (elapsedInPhase >= duracionMs) {
-                        phaseCompleted = true
-                        _progress.value = 1f
-
-                        // Pasar a la siguiente fase
-                        currentPhaseIndex = (currentPhaseIndex + 1) % fases.size
-                        currentPhaseStartTime = currentTime
-                        _progress.value = 0f
-                    }
-
-                    delay(16L) // ~60 FPS
-                }
-
-                // Si el tiempo total se agotó, salir del ciclo
-                if (_remainingTimeMs.value <= 0L) {
-                    break
-                }
-            }
-
-            // Finalizar sesión
-            _isRunning.value = false
-            if (_remainingTimeMs.value <= 0L) {
-                _uiState.update { it.copy(estado = "Finalizado") }
-                _progress.value = 0f
-                _currentPhase.value = EstadosRespiracion.INHALING
-            } else {
-                _uiState.update { it.copy(estado = "Pausado") }
-                pausedTimeMs = System.currentTimeMillis()
-            }
+            // ✅ SessionManager maneja toda la lógica compleja
+            sessionManager.executeBreathingCycle(
+                respiracion = respiracion,
+                isRunning = _isRunning,
+                callbacks = sessionCallbacks
+            )
         }
     }
 
-    private fun save(){
-        viewModelScope.launch {
-            val result = sesionRespository.save(_uiState.value.toDto())
-            _uiState.update {
-                it.copy(
-                    error = when (result) {
-                        is Resource.Success -> "Reflexión guardada correctamente"
-                        is Resource.Error -> result.message ?: "Error al guardar la reflexión"
-                        else -> null
-                    }
-                )
-            }
-
-        }
+    private fun handleInvalidConfiguration() {
+        _uiState.update { it.copy(estado = "Configuración inválida") }
+        _isRunning.value = false
     }
 
+    private fun finalizarSesion() {
+        _isRunning.value = false
 
+        val estado = if (sessionManager.isComplete()) {
+            _progress.value = 0f
+            _currentPhase.value = EstadosRespiracion.INHALING
+            "Finalizado"
+        } else {
+            "Pausado"
+        }
+
+        _uiState.update { it.copy(estado = estado) }
+    }
+
+    private fun save() = viewModelScope.launch {
+        val result = sesionRespository.save(_uiState.value.toDto())
+        val message = when (result) {
+            is Resource.Success -> "Reflexión guardada correctamente"
+            is Resource.Error -> result.message ?: "Error al guardar la reflexión"
+            else -> null
+        }
+        _uiState.update { it.copy(error = message) }
+    }
 }
