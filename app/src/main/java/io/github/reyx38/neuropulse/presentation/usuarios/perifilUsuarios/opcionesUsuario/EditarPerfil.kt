@@ -1,3 +1,4 @@
+package io.github.reyx38.neuropulse.presentation.usuarios.EditarPerfil
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
