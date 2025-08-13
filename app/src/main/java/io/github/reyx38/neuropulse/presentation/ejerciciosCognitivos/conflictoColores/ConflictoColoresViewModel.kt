@@ -55,26 +55,6 @@ class ConflictoColoresViewModel @Inject constructor(
         save()
     }
 
-    private fun onCompletadoChange(estado: Boolean) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    juegoTerminado = estado
-                )
-            }
-        }
-    }
-
-    private fun onEjercicioCognitivoChange(ejercicioId: Int) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    ejerciciosCognitivosId = ejercicioId
-                )
-            }
-        }
-    }
-
     private fun onPuntacionChange(puntacionTotal: Int) {
         viewModelScope.launch {
             _uiState.update {
@@ -175,6 +155,26 @@ class ConflictoColoresViewModel @Inject constructor(
             respuestaCorrecta = respuestaCorrecta,
             mostrandoResultado = false
         )
+    }
+
+    private fun onCompletadoChange(estado: Boolean) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    juegoTerminado = estado
+                )
+            }
+        }
+    }
+
+    private fun onEjercicioCognitivoChange(ejercicioId: Int) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    ejerciciosCognitivosId = ejercicioId
+                )
+            }
+        }
     }
 
     private fun iniciarTemporizador() {
