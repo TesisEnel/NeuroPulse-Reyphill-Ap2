@@ -16,20 +16,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.reyx38.neuropulse.data.local.EstilosData.GameCardConfig
+import io.github.reyx38.neuropulse.data.local.EstilosData.GameIconButtonConfig
 import io.github.reyx38.neuropulse.presentation.uiCommon.dialogs.ConfirmationDialog
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,20 +41,24 @@ fun ConflictoColoresScreen(
     onNavigateBack: () -> Unit = {},
     ejercicioCognitivoId: Int = 0,
     onJuegoCompletado: (Int) -> Unit = {}
-
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val colorScheme = MaterialTheme.colorScheme
-    viewModel.onEvent(ConflictoColoresEvent.EjercicioCognitivoChange(ejercicioCognitivoId))
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    // Effects
+    LaunchedEffect(uiState.usuarioId != null) {
+        viewModel.onEvent(ConflictoColoresEvent.EjercicioCognitivoChange(ejercicioCognitivoId))
+    }
 
     LaunchedEffect(uiState.juegoTerminado) {
         if (uiState.juegoTerminado) {
             onJuegoCompletado(uiState.puntuacionTotal)
         }
     }
-    var showExitDialog by remember { mutableStateOf(false) }
 
-    fun handleExit() {
+    // Event handlers
+    val handleExit = {
         if (!uiState.juegoTerminado) {
             showExitDialog = true
         } else {
@@ -60,173 +67,238 @@ fun ConflictoColoresScreen(
         }
     }
 
-    BackHandler {
-        handleExit()
-    }
+    BackHandler { handleExit() }
 
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column {
-                    TopAppBar(
-                        title = {
-                            Column {
-                                Text(
-                                    text = "Conflicto de Colores",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1
-                                )
-                                Text(
-                                    text = "Ronda ${uiState.rondaActual}/3 • ${uiState.puntuacionTotal} pts",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 12.sp,
-                                    maxLines = 1
-                                )
-                            }
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {handleExit()},
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Atrás",
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        },
-                        actions = {
-                            TimerIndicator(
-                                timeRemaining = uiState.tiempoRestante,
-                                colorScheme = colorScheme
-                            )
-
-                            Spacer(modifier = Modifier.width(4.dp))
-
-                            IconButton(
-                                onClick = { viewModel.reiniciarJuego() },
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
-                            ) {
-                                Icon(
-                                    Icons.Default.Refresh,
-                                    contentDescription = "Reiniciar",
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent
-                        )
-                    )
-
-                    ProgressIndicator(
-                        current = uiState.palabrasCompletadas,
-                        total = uiState.palabrasPorRonda,
-                        colorScheme = colorScheme
-                    )
-                }
-            }
+            GameTopBar(
+                uiState = uiState,
+                colorScheme = colorScheme,
+                onBackClick = handleExit,
+                onRestartClick = { viewModel.reiniciarJuego() }
+            )
         }
     ) { paddingValues ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colorScheme.background)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (uiState.juegoTerminado) {
-                    GameCompletedScreen(
-                        score = uiState.puntuacionTotal,
-                        onRestart = {
-                            viewModel.onEvent(ConflictoColoresEvent.Save)
-                            viewModel.reiniciarJuego()  },
-                        onNavigateBack ={
-                            viewModel.onEvent(ConflictoColoresEvent.Save)
-                            onNavigateBack()
-                        },
-                        colorScheme = colorScheme
-                    )
-                } else {
-                    GamePlayScreen(
-                        state = uiState,
-                        viewModel = viewModel,
-                        colorScheme = colorScheme
-                    )
-                }
+        GameContent(
+            uiState = uiState,
+            viewModel = viewModel,
+            colorScheme = colorScheme,
+            paddingValues = paddingValues,
+            onNavigateBack = {
+                viewModel.onEvent(ConflictoColoresEvent.Save)
+                onNavigateBack()
             }
-        }
+        )
+
         if (showExitDialog) {
-            ConfirmationDialog(
+            GameExitDialog(
                 onConfirm = {
                     showExitDialog = false
                     viewModel.onEvent(ConflictoColoresEvent.JuegoIncompleto)
                     viewModel.reiniciarJuego()
                     onNavigateBack()
                 },
-                onDismiss = {
-                    showExitDialog = false
+                onDismiss = { showExitDialog = false }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GameTopBar(
+    uiState: ConflictoColoresUiState,
+    colorScheme: ColorScheme,
+    onBackClick: () -> Unit,
+    onRestartClick: () -> Unit
+) {
+    GameCard(
+        config = GameCardConfig(
+            backgroundColor = colorScheme.surface,
+            contentColor = colorScheme.onSurface,
+            elevation = 4.dp,
+            shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
+        ),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column {
+            TopAppBar(
+                title = {
+                    GameTopBarTitle(
+                        currentRound = uiState.rondaActual,
+                        totalScore = uiState.puntuacionTotal,
+                        colorScheme = colorScheme
+                    )
                 },
-                iconoSuperior = Icons.Default.Warning,
-                titulo = "¿Salir del juego?",
-                subTitulo = "Tu partida está en progreso. Si sales ahora:",
-                listaCondiciones = listOf(
-                    "• Se perderá todo el progreso actual",
-                    "• La partida quedará marcada como incompleta",
-                    "• Tendrás que empezar desde el principio",
-                    "• Recibiras una penalizacion por abandodar"
-                )
+                navigationIcon = {
+                    GameIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Atrás",
+                        onClick = onBackClick,
+                        config = GameIconButtonConfig(
+                            backgroundColor = colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                            contentColor = colorScheme.onSurface
+                        )
+                    )
+                },
+                actions = {
+                    TimerIndicator(
+                        timeRemaining = uiState.tiempoRestante,
+                        colorScheme = colorScheme
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    GameIconButton(
+                        icon = Icons.Default.Refresh,
+                        contentDescription = "Reiniciar",
+                        onClick = onRestartClick,
+                        config = GameIconButtonConfig(
+                            backgroundColor = colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                            contentColor = colorScheme.onSurface
+                        )
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            )
+
+            ProgressIndicator(
+                current = uiState.palabrasCompletadas,
+                total = uiState.palabrasPorRonda,
+                colorScheme = colorScheme
             )
         }
     }
 }
 
 @Composable
-fun TimerIndicator(
+private fun GameTopBarTitle(
+    currentRound: Int,
+    totalScore: Int,
+    colorScheme: ColorScheme
+) {
+    Column {
+        Text(
+            text = "Conflicto de Colores",
+            color = colorScheme.onSurface,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
+        )
+        Text(
+            text = "Ronda $currentRound/3 • $totalScore pts",
+            color = colorScheme.onSurfaceVariant,
+            fontSize = 12.sp,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun GameContent(
+    uiState: ConflictoColoresUiState,
+    viewModel: ConflictoColoresViewModel,
+    colorScheme: ColorScheme,
+    paddingValues: PaddingValues,
+    onNavigateBack: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorScheme.background)
+            .padding(paddingValues),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (uiState.juegoTerminado) {
+            GameCompletedScreen(
+                score = uiState.puntuacionTotal,
+                onRestart = {
+                    viewModel.onEvent(ConflictoColoresEvent.Save)
+                    viewModel.reiniciarJuego()
+                },
+                onNavigateBack = {
+                    viewModel.onEvent(ConflictoColoresEvent.Save)
+                    onNavigateBack()
+                },
+                colorScheme = colorScheme
+            )
+        } else {
+            GamePlayScreen(
+                state = uiState,
+                viewModel = viewModel,
+                colorScheme = colorScheme
+            )
+        }
+    }
+}
+
+@Composable
+private fun GameCard(
+    config: GameCardConfig,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = config.shape,
+        colors = CardDefaults.cardColors(containerColor = config.backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = config.elevation),
+        content = { content() }
+    )
+}
+
+@Composable
+private fun GameIconButton(
+    icon: ImageVector,
+    contentDescription: String?,
+    onClick: () -> Unit,
+    config: GameIconButtonConfig,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .size(config.size)
+            .clip(CircleShape)
+            .background(config.backgroundColor)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = config.contentColor,
+            modifier = Modifier.size(config.iconSize)
+        )
+    }
+}
+
+@Composable
+private fun TimerIndicator(
     timeRemaining: Int,
     colorScheme: ColorScheme
 ) {
     val isLowTime = timeRemaining <= 15
+    val timerConfig = if (isLowTime) {
+        GameCardConfig(
+            backgroundColor = colorScheme.errorContainer.copy(alpha = 0.8f),
+            contentColor = colorScheme.error,
+            shape = RoundedCornerShape(10.dp)
+        )
+    } else {
+        GameCardConfig(
+            backgroundColor = colorScheme.primaryContainer.copy(alpha = 0.8f),
+            contentColor = colorScheme.primary,
+            shape = RoundedCornerShape(10.dp)
+        )
+    }
+
     val scale by animateFloatAsState(
         targetValue = if (isLowTime) 1.1f else 1f,
         animationSpec = tween(300),
         label = "timer_scale"
     )
 
-    Card(
-        modifier = Modifier
-            .scale(scale),
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isLowTime)
-                colorScheme.errorContainer.copy(alpha = 0.8f)
-            else
-                colorScheme.primaryContainer.copy(alpha = 0.8f)
-        )
+    GameCard(
+        config = timerConfig,
+        modifier = Modifier.scale(scale)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -235,7 +307,7 @@ fun TimerIndicator(
             Icon(
                 imageVector = Icons.Default.Timer,
                 contentDescription = null,
-                tint = if (isLowTime) colorScheme.error else colorScheme.primary,
+                tint = timerConfig.contentColor,
                 modifier = Modifier.size(14.dp)
             )
             Spacer(modifier = Modifier.width(3.dp))
@@ -243,14 +315,14 @@ fun TimerIndicator(
                 text = "${timeRemaining}s",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (isLowTime) colorScheme.error else colorScheme.primary
+                color = timerConfig.contentColor
             )
         }
     }
 }
 
 @Composable
-fun ProgressIndicator(
+private fun ProgressIndicator(
     current: Int,
     total: Int,
     colorScheme: ColorScheme
@@ -262,41 +334,56 @@ fun ProgressIndicator(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Palabras: $current/$total",
-                fontSize = 12.sp,
-                color = colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = "${(progress * 100).toInt()}%",
-                fontSize = 12.sp,
-                color = colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        ProgressLabels(
+            current = current,
+            total = total,
+            progress = progress,
+            colorScheme = colorScheme
+        )
 
         Spacer(modifier = Modifier.height(4.dp))
 
         LinearProgressIndicator(
-        progress = { progress },
-        modifier = Modifier
-                        .fillMaxWidth()
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(3.dp)),
-        color = colorScheme.primary,
-        trackColor = colorScheme.primary.copy(alpha = 0.2f),
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp)),
+            color = colorScheme.primary,
+            trackColor = colorScheme.primary.copy(alpha = 0.2f)
         )
     }
 }
 
 @Composable
-fun GamePlayScreen(
+private fun ProgressLabels(
+    current: Int,
+    total: Int,
+    progress: Float,
+    colorScheme: ColorScheme
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Palabras: $current/$total",
+            fontSize = 12.sp,
+            color = colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = "${(progress * 100).toInt()}%",
+            fontSize = 12.sp,
+            color = colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun GamePlayScreen(
     state: ConflictoColoresUiState,
     viewModel: ConflictoColoresViewModel,
     colorScheme: ColorScheme
@@ -307,7 +394,6 @@ fun GamePlayScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Instrucciones dinámicas con indicador de modo
         ModeInstructionCard(
             gameMode = state.modoJuego,
             colorScheme = colorScheme
@@ -315,7 +401,6 @@ fun GamePlayScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Palabra con color destacada
         WordDisplayCard(
             word = state.palabraActual,
             wordColor = state.colorPalabra,
@@ -324,44 +409,54 @@ fun GamePlayScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Título para opciones
-        Text(
-            text = "Selecciona tu respuesta",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = colorScheme.onSurface
+        GameSectionTitle(
+            colorScheme = colorScheme
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Opciones de respuesta en grid compacto
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.heightIn(max = 200.dp)
-        ) {
-            items(state.coloresDisponibles) { colorInfo ->
-                ColorOptionCard(
-                    colorInfo = colorInfo,
-                    onClick = { viewModel.seleccionarRespuesta(colorInfo.nombre) },
-                    colorScheme = colorScheme
-                )
-            }
-        }
+        ColorOptionsGrid(
+            coloresDisponibles = state.coloresDisponibles,
+            onColorSelected = { viewModel.seleccionarRespuesta(it.nombre) },
+            colorScheme = colorScheme
+        )
 
-        // Resultado de la respuesta
-        AnimatedVisibility(
-            visible = state.mostrandoResultado,
-            enter = slideInVertically(
-                initialOffsetY = { it },
-                animationSpec = tween(300)
-            ) + fadeIn(tween(300))
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            ResultCard(
-                isCorrect = state.esRespuestaCorrecta,
-                points = if (state.esRespuestaCorrecta) 100 else 25,
+        AnimatedGameResult(
+            mostrandoResultado = state.mostrandoResultado,
+            esRespuestaCorrecta = state.esRespuestaCorrecta,
+            colorScheme = colorScheme
+        )
+    }
+}
+
+@Composable
+private fun GameSectionTitle(
+    colorScheme: ColorScheme
+) {
+    Text(
+        text = "Selecciona tu respuesta",
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold,
+        color = colorScheme.onSurface
+    )
+}
+
+@Composable
+private fun ColorOptionsGrid(
+    coloresDisponibles: List<ColorInfo>,
+    onColorSelected: (ColorInfo) -> Unit,
+    colorScheme: ColorScheme
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.heightIn(max = 200.dp)
+    ) {
+        items(coloresDisponibles) { colorInfo ->
+            ColorOptionCard(
+                colorInfo = colorInfo,
+                onClick = { onColorSelected(colorInfo) },
                 colorScheme = colorScheme
             )
         }
@@ -369,44 +464,59 @@ fun GamePlayScreen(
 }
 
 @Composable
-fun ModeInstructionCard(
+private fun AnimatedGameResult(
+    mostrandoResultado: Boolean,
+    esRespuestaCorrecta: Boolean,
+    colorScheme: ColorScheme
+) {
+    AnimatedVisibility(
+        visible = mostrandoResultado,
+        enter = slideInVertically(
+            initialOffsetY = { it },
+            animationSpec = tween(300)
+        ) + fadeIn(tween(300))
+    ) {
+        Column {
+            Spacer(modifier = Modifier.height(16.dp))
+            ResultCard(
+                isCorrect = esRespuestaCorrecta,
+                points = if (esRespuestaCorrecta) 100 else 25,
+                colorScheme = colorScheme
+            )
+        }
+    }
+}
+
+@Composable
+private fun ModeInstructionCard(
     gameMode: String,
     colorScheme: ColorScheme
 ) {
     val isColorMode = gameMode == "COLOR"
+    val modeConfig = if (isColorMode) {
+        GameCardConfig(
+            backgroundColor = colorScheme.secondaryContainer.copy(alpha = 0.4f),
+            contentColor = colorScheme.secondary
+        )
+    } else {
+        GameCardConfig(
+            backgroundColor = colorScheme.tertiaryContainer.copy(alpha = 0.4f),
+            contentColor = colorScheme.tertiary
+        )
+    }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isColorMode)
-                colorScheme.secondaryContainer.copy(alpha = 0.4f)
-            else
-                colorScheme.tertiaryContainer.copy(alpha = 0.4f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    GameCard(
+        config = modeConfig,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = if (isColorMode) Icons.Default.Palette else Icons.Default.TextFields,
-                    contentDescription = null,
-                    tint = if (isColorMode) colorScheme.secondary else colorScheme.tertiary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (isColorMode) "MODO COLOR" else "MODO TEXTO",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isColorMode) colorScheme.secondary else colorScheme.tertiary
-                )
-            }
+            ModeHeader(
+                isColorMode = isColorMode,
+                contentColor = modeConfig.contentColor
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -426,20 +536,43 @@ fun ModeInstructionCard(
 }
 
 @Composable
-fun WordDisplayCard(
+private fun ModeHeader(
+    isColorMode: Boolean,
+    contentColor: Color
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = if (isColorMode) Icons.Default.Palette else Icons.Default.TextFields,
+            contentDescription = null,
+            tint = contentColor,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = if (isColorMode) "MODO COLOR" else "MODO TEXTO",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = contentColor
+        )
+    }
+}
+
+@Composable
+private fun WordDisplayCard(
     word: String,
     wordColor: Color,
     colorScheme: ColorScheme
 ) {
-    Card(
+    GameCard(
+        config = GameCardConfig(
+            backgroundColor = colorScheme.surface,
+            contentColor = wordColor,
+            elevation = 6.dp,
+            shape = RoundedCornerShape(20.dp)
+        ),
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            .height(100.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -457,23 +590,20 @@ fun WordDisplayCard(
 }
 
 @Composable
-fun ColorOptionCard(
+private fun ColorOptionCard(
     colorInfo: ColorInfo,
     onClick: () -> Unit,
     colorScheme: ColorScheme
 ) {
-    Card(
+    GameCard(
+        config = GameCardConfig(
+            backgroundColor = colorInfo.color.copy(alpha = 0.15f),
+            contentColor = colorInfo.color,
+            elevation = 2.dp
+        ),
         modifier = Modifier
             .aspectRatio(1.2f)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = colorInfo.color.copy(alpha = 0.15f)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp,
-            pressedElevation = 8.dp
-        )
+            .clickable { onClick() }
     ) {
         Box(
             modifier = Modifier
@@ -485,46 +615,57 @@ fun ColorOptionCard(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Círculo de color
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(colorInfo.color, CircleShape)
-                        .border(1.dp, colorScheme.outline.copy(alpha = 0.3f), CircleShape)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = colorInfo.nombre,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colorInfo.color,
-                    textAlign = TextAlign.Center
-                )
-            }
+            ColorOptionContent(colorInfo = colorInfo, colorScheme = colorScheme)
         }
     }
 }
 
 @Composable
-fun ResultCard(
+private fun ColorOptionContent(
+    colorInfo: ColorInfo,
+    colorScheme: ColorScheme
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(colorInfo.color, CircleShape)
+                .border(1.dp, colorScheme.outline.copy(alpha = 0.3f), CircleShape)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = colorInfo.nombre,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorInfo.color,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun ResultCard(
     isCorrect: Boolean,
     points: Int,
     colorScheme: ColorScheme
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCorrect)
-                colorScheme.primaryContainer.copy(alpha = 0.3f)
-            else
-                colorScheme.errorContainer.copy(alpha = 0.3f)
+    val resultConfig = if (isCorrect) {
+        GameCardConfig(
+            backgroundColor = colorScheme.primaryContainer.copy(alpha = 0.3f),
+            contentColor = colorScheme.primary
         )
+    } else {
+        GameCardConfig(
+            backgroundColor = colorScheme.errorContainer.copy(alpha = 0.3f),
+            contentColor = colorScheme.error
+        )
+    }
+
+    GameCard(
+        config = resultConfig,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -536,7 +677,7 @@ fun ResultCard(
             Icon(
                 imageVector = if (isCorrect) Icons.Default.CheckCircle else Icons.Default.Cancel,
                 contentDescription = null,
-                tint = if (isCorrect) colorScheme.primary else colorScheme.error,
+                tint = resultConfig.contentColor,
                 modifier = Modifier.size(24.dp)
             )
 
@@ -546,14 +687,14 @@ fun ResultCard(
                 text = if (isCorrect) "¡Correcto! +$points puntos" else "Incorrecto. +$points puntos",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (isCorrect) colorScheme.primary else colorScheme.error
+                color = resultConfig.contentColor
             )
         }
     }
 }
 
 @Composable
-fun GameCompletedScreen(
+private fun GameCompletedScreen(
     score: Int,
     onRestart: () -> Unit,
     onNavigateBack: () -> Unit,
@@ -566,81 +707,126 @@ fun GameCompletedScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Icono de celebración
-        Icon(
-            imageVector = Icons.Default.EmojiEvents,
-            contentDescription = null,
-            tint = colorScheme.primary,
-            modifier = Modifier.size(80.dp)
-        )
+        CompletionIcon(colorScheme = colorScheme)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "¡Juego Completado!",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Puntuación Final",
-            fontSize = 18.sp,
-            color = colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
+        CompletionTexts(colorScheme = colorScheme)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.primaryContainer.copy(alpha = 0.3f)
-            )
-        ) {
-            Text(
-                text = "$score puntos",
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
-                color = colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-            )
-        }
+        ScoreCard(score = score, colorScheme = colorScheme)
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Botones
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedButton(
-                onClick = onNavigateBack,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = colorScheme.onSurface
-                )
-            ) {
-                Text("Salir")
-            }
+        CompletionButtons(
+            onNavigateBack = onNavigateBack,
+            onRestart = onRestart,
+            colorScheme = colorScheme
+        )
+    }
+}
 
-            Button(
-                onClick = onRestart,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.primary
-                )
-            ) {
-                Text("Jugar Otra Vez")
-            }
+@Composable
+private fun CompletionIcon(colorScheme: ColorScheme) {
+    Icon(
+        imageVector = Icons.Default.EmojiEvents,
+        contentDescription = null,
+        tint = colorScheme.primary,
+        modifier = Modifier.size(80.dp)
+    )
+}
+
+@Composable
+private fun CompletionTexts(colorScheme: ColorScheme) {
+    Text(
+        text = "¡Juego Completado!",
+        fontSize = 28.sp,
+        fontWeight = FontWeight.Bold,
+        color = colorScheme.onSurface,
+        textAlign = TextAlign.Center
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Text(
+        text = "Puntuación Final",
+        fontSize = 18.sp,
+        color = colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+private fun ScoreCard(score: Int, colorScheme: ColorScheme) {
+    GameCard(
+        config = GameCardConfig(
+            backgroundColor = colorScheme.primaryContainer.copy(alpha = 0.3f),
+            contentColor = colorScheme.primary
+        ),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "$score puntos",
+            fontSize = 48.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        )
+    }
+}
+
+@Composable
+private fun CompletionButtons(
+    onNavigateBack: () -> Unit,
+    onRestart: () -> Unit,
+    colorScheme: ColorScheme
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        OutlinedButton(
+            onClick = onNavigateBack,
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = colorScheme.onSurface
+            )
+        ) {
+            Text("Salir")
+        }
+
+        Button(
+            onClick = onRestart,
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.primary
+            )
+        ) {
+            Text("Jugar Otra Vez")
         }
     }
 }
 
+@Composable
+private fun GameExitDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    ConfirmationDialog(
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+        iconoSuperior = Icons.Default.Warning,
+        titulo = "¿Salir del juego?",
+        subTitulo = "Tu partida está en progreso. Si sales ahora:",
+        listaCondiciones = listOf(
+            "• Se perderá todo el progreso actual",
+            "• La partida quedará marcada como incompleta",
+            "• Tendrás que empezar desde el principio",
+            "• Recibiras una penalizacion por abandodar"
+        )
+    )
+}
